@@ -5,6 +5,7 @@ import {
   SectionContainer,
 } from "@/components/layouts";
 import { useParams } from "next/navigation";
+import { CustomerCard } from "../../components";
 
 export const DetailCustomerPage = () => {
   const params: { id: string } = useParams();
@@ -14,6 +15,7 @@ export const DetailCustomerPage = () => {
       <SectionContainer padded>
         <DashboardSection title="Dashboard - Pelanggan">
           Detail KONTOL id: {id}
+          <CustomerCard customerId={id} />
         </DashboardSection>
       </SectionContainer>
     </PageContainer>

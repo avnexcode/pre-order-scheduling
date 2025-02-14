@@ -1,13 +1,11 @@
 import { PageContainer, SectionContainer } from "@/components/layouts";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { api } from "@/utils/api";
 import { renderElements } from "@/utils/render-elements";
 import Link from "next/link";
 import { toast as sooner } from "sonner";
 
 export const HomePage = () => {
-  const hello = api.post.hello.useQuery({ text: "from tRPC" });
   const { toast } = useToast();
 
   return (
@@ -15,9 +13,15 @@ export const HomePage = () => {
       <SectionContainer>
         <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c]">
           <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16">
-            <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-[5rem]">
-              Create <span className="text-[hsl(280,100%,70%)]">T3</span> App
-            </h1>
+            <Link
+              href={"/dashboard"}
+              className="text-center text-5xl font-extrabold tracking-tight text-white sm:text-[5rem]"
+            >
+              Open{" "}
+              <span className="text-[hsl(280,100%,70%)]">UD. WIJAYAKUSUMA</span>{" "}
+              App
+            </Link>
+
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-8">
               <Button
                 onClick={() => sooner.success("Sooner testing successfully")}
@@ -60,7 +64,7 @@ export const HomePage = () => {
                 of: [...new Array<undefined>(10)],
                 render: (_, index) => (
                   <p key={index} className="text-2xl text-white">
-                    {hello.data ? hello.data.greeting : "Loading tRPC query..."}
+                    Hello World {index + 1}
                   </p>
                 ),
               })}

@@ -27,7 +27,7 @@ model Profile {
 model Customer {
     id      String  @id @default(cuid())
     name    String  @db.VarChar(150)
-    email   String? @db.VarChar(150)
+    email   String? @unique @db.VarChar(150)
     address String  @db.VarChar(255)
     phone   String  @db.VarChar(20)
     orders  Order[]
@@ -56,8 +56,8 @@ model Product {
 
 model ProductCategory {
     id          String  @id @default(cuid())
-    name        String  @db.VarChar(150)
-    slug        String
+    name        String  @unique @db.VarChar(150)
+    slug        String  @unique
     description String? @db.Text
 
     products Product[]

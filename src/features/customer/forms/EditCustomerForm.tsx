@@ -25,7 +25,10 @@ type EditCustomerFormProps = {
 
 export const EditCustomerForm = ({ customerId }: EditCustomerFormProps) => {
   const router = useRouter();
-  const { data: customer } = api.customer.getById.useQuery({ id: customerId });
+  const { data: customer } = api.customer.getById.useQuery(
+    { id: customerId },
+    { enabled: !!customerId },
+  );
 
   const form = useForm<UpdateCustomerFormSchema>({
     defaultValues: {

@@ -1,12 +1,13 @@
+import {
+  createProductCategoryRequest,
+  updateProductCategoryRequest,
+} from "./../../validations/product-category.validation";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
-import {
-  createCustomerRequest,
-  updateCustomerRequest,
-} from "@/server/validations/customer.validation";
+import { generateSlug } from "@/utils/slug-generator";
 
-export const customerRouter = createTRPCRouter({
+export const productCategoryRouter = createTRPCRouter({
   getAll: publicProcedure
     .input(
       z.object({
@@ -17,7 +18,7 @@ export const customerRouter = createTRPCRouter({
     )
     .query(async ({ ctx, input }) => {
       try {
-        const customers = await ctx.db.customer.findMany({
+        const productCategories = await ctx.db.productCategory.findMany({
           take: input.limit + 1,
           ...(input.cursor && {
             cursor: {
@@ -27,10 +28,7 @@ export const customerRouter = createTRPCRouter({
           }),
           ...(input.search && {
             where: {
-              OR: [
-                { name: { contains: input.search, mode: "insensitive" } },
-                { email: { contains: input.search, mode: "insensitive" } },
-              ],
+              OR: [{ name: { contains: input.search, mode: "insensitive" } }],
             },
           }),
           orderBy: {
@@ -39,19 +37,20 @@ export const customerRouter = createTRPCRouter({
         });
 
         let nextCursor: string | undefined = undefined;
-        if (customers.length > input.limit) {
-          const nextItem = customers.pop();
+
+        if (productCategories.length > input.limit) {
+          const nextItem = productCategories.pop();
           nextCursor = nextItem?.id;
         }
 
         return {
-          items: customers,
+          items: productCategories,
           nextCursor,
         };
       } catch (error) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to fetch customers",
+          message: "Failed to fetch product categories",
           cause: error,
         });
       }
@@ -61,59 +60,74 @@ export const customerRouter = createTRPCRouter({
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
       try {
-        const customer = await ctx.db.customer.findUnique({
+        const productCategory = await ctx.db.productCategory.findUnique({
           where: { id: input.id },
         });
 
-        if (!customer) {
+        if (!productCategory) {
           throw new TRPCError({
             code: "NOT_FOUND",
-            message: `Customer with ID ${input.id} not found`,
+            message: `Product category with ID ${input.id} not found`,
           });
         }
 
-        return customer;
+        return productCategory;
       } catch (error) {
         if (error instanceof TRPCError) throw error;
 
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to fetch customer",
+          message: "Failed to fetch productCategory",
           cause: error,
         });
       }
     }),
 
   create: publicProcedure
-    .input(createCustomerRequest)
+    .input(createProductCategoryRequest)
     .mutation(async ({ ctx, input }) => {
       try {
-        const existingCustomer = await ctx.db.customer.count({
-          where: { email: input.email },
+        const existingProductCategory = await ctx.db.productCategory.count({
+          where: { name: input.name },
         });
 
-        if (existingCustomer !== 0) {
+        if (existingProductCategory !== 0) {
           throw new TRPCError({
             code: "CONFLICT",
-            message: "Customer with this email already exists",
+            message: "Product category with this name already exists",
           });
         }
 
-        const customer = await ctx.db.customer.create({
+        let slug = generateSlug(input.name);
+
+        const existsSlug = await ctx.db.productCategory.count({
+          where: {
+            slug: {
+              startsWith: slug,
+            },
+          },
+        });
+
+        if (existsSlug !== 0) {
+          slug = generateSlug(input.name, true);
+        }
+
+        const productCategory = await ctx.db.productCategory.create({
           data: {
             ...input,
+            slug,
             created_at: new Date(),
             updated_at: new Date(),
           },
         });
 
-        return customer;
+        return productCategory;
       } catch (error) {
         if (error instanceof TRPCError) throw error;
 
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to create customer",
+          message: "Failed to create product category",
           cause: error,
         });
       }
@@ -123,39 +137,41 @@ export const customerRouter = createTRPCRouter({
     .input(
       z.object({
         id: z.string().uuid(),
-        request: updateCustomerRequest,
+        request: updateProductCategoryRequest,
       }),
     )
     .mutation(async ({ ctx, input }) => {
       try {
-        const existingCustomer = await ctx.db.customer.findUnique({
-          where: { id: input.id },
-        });
+        const existingProductCategory = await ctx.db.productCategory.findUnique(
+          {
+            where: { id: input.id },
+          },
+        );
 
-        if (!existingCustomer) {
+        if (!existingProductCategory) {
           throw new TRPCError({
             code: "NOT_FOUND",
-            message: `Customer with ID ${input.id} not found`,
+            message: `Product category with ID ${input.id} not found`,
           });
         }
 
         if (
-          input.request.email &&
-          input.request.email !== existingCustomer.email
+          input.request.name &&
+          input.request.name !== existingProductCategory.name
         ) {
-          const emailExists = await ctx.db.customer.count({
-            where: { email: input.request.email },
+          const nameExists = await ctx.db.productCategory.count({
+            where: { name: input.request.name },
           });
 
-          if (emailExists !== 0) {
+          if (nameExists !== 0) {
             throw new TRPCError({
               code: "CONFLICT",
-              message: "Customer with this email already exists",
+              message: "Product category with this name already exists",
             });
           }
         }
 
-        const customer = await ctx.db.customer.update({
+        const productCategory = await ctx.db.productCategory.update({
           where: { id: input.id },
           data: {
             ...input.request,
@@ -163,13 +179,13 @@ export const customerRouter = createTRPCRouter({
           },
         });
 
-        return customer;
+        return productCategory;
       } catch (error) {
         if (error instanceof TRPCError) throw error;
 
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to update customer",
+          message: "Failed to update product category",
           cause: error,
         });
       }
@@ -179,28 +195,28 @@ export const customerRouter = createTRPCRouter({
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
       try {
-        const existingCustomer = await ctx.db.customer.findUnique({
+        const existingProductCategory = await ctx.db.productCategory.count({
           where: { id: input.id },
         });
 
-        if (!existingCustomer) {
+        if (existingProductCategory === 0) {
           throw new TRPCError({
             code: "NOT_FOUND",
-            message: `Customer with ID ${input.id} not found`,
+            message: `Product category with ID ${input.id} not found`,
           });
         }
 
-        const customer = await ctx.db.customer.delete({
+        const productCategory = await ctx.db.productCategory.delete({
           where: { id: input.id },
         });
 
-        return customer.id;
+        return productCategory.id;
       } catch (error) {
         if (error instanceof TRPCError) throw error;
 
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to delete customer",
+          message: "Failed to delete product category",
           cause: error,
         });
       }

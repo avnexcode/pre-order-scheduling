@@ -1,5 +1,4 @@
-import { PageContainer } from "@/components/layouts/PageContainer";
-import { SectionContainer } from "@/components/layouts/SectionContainer";
+import { PageContainer, SectionContainer } from "@/components/layouts";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { api } from "@/utils/api";
@@ -9,7 +8,6 @@ import { toast as sooner } from "sonner";
 
 export const HomePage = () => {
   const hello = api.post.hello.useQuery({ text: "from tRPC" });
-
   const { toast } = useToast();
 
   return (

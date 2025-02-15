@@ -2,7 +2,7 @@ import { api } from "@/utils/api";
 import { type AppProps, type AppType } from "next/app";
 import { type NextPage } from "next";
 
-import { AppProvider } from "@/components/layouts/AppProvider";
+import { AppProvider } from "@/components/layouts";
 import "@/styles/globals.css";
 
 export type NextPageWithLayout<P = object, IP = P> = NextPage<P, IP> & {

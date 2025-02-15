@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { Providers } from "./providers/Providers";
+import { Providers } from "./providers";
 import { GeistSans } from "geist/font/sans";
 import { Toaster as Sooner } from "sonner";
 import { Toaster } from "../ui/toaster";

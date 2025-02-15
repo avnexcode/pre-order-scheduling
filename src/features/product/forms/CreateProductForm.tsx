@@ -34,7 +34,7 @@ export const CreateProductForm = () => {
     api.product.create.useMutation({
       onSuccess: () => {
         toast.success("Berhasil menambahkan product ");
-        void router.replace("/dashboard/product-");
+        void router.replace("/dashboard/product");
       },
     });
 

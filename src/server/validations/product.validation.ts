@@ -7,6 +7,4 @@ export const createProductRequest = z.object({
   product_category_id: z.string().optional(),
 });
 
-export const updateProductRequest = createProductRequest.partial().extend({
-  slug: z.string(),
-});
+export const updateProductRequest = createProductRequest.partial();

@@ -3,9 +3,9 @@ generator client {
 }
 
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
-    // directUrl = env("DIRECT_URL")
+    provider  = "postgresql"
+    url       = env("DATABASE_URL")
+    directUrl = env("DIRECT_URL")
 }
 
 enum LoginProvider {
@@ -46,7 +46,7 @@ model Product {
     description String? @db.Text
 
     product_category    ProductCategory? @relation(fields: [product_category_id], references: [id])
-    product_category_id String?
+    product_category_id String
 
     created_at DateTime @default(now())
     updated_at DateTime @updatedAt

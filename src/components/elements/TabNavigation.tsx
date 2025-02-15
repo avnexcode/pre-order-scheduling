@@ -19,8 +19,8 @@ export const TabNavigation = ({ className, ...props }: TabNavigationProps) => {
         variant={"outline"}
         size={"sm"}
         className={cn(
-          "border-b-2 border-b-primary px-20 capitalize",
-          !activeTab && "border-b-2-primary",
+          "px-20 capitalize",
+          activeTab && "border-b-2 border-b-primary bg-secondary/80",
           className,
         )}
       >

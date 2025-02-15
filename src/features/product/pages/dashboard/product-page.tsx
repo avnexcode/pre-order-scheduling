@@ -9,8 +9,16 @@ import { Button } from "@/components/ui/button";
 import { CirclePlus } from "lucide-react";
 import Link from "next/link";
 import { ProductTable } from "../../tables";
+import { api } from "@/utils/api";
 
 export const ProductPage = () => {
+  const {
+    data: products,
+    isLoading: isProductsLoading,
+    refetch: refetchProducts,
+  } = api.product.getAll.useQuery({
+    limit: 100,
+  });
   return (
     <PageContainer>
       <SectionContainer padded>
@@ -24,7 +32,11 @@ export const ProductPage = () => {
                 </Button>
               </Link>
             </header>
-            <ProductTable productId="" />
+            <ProductTable
+              products={products?.items}
+              isProductsLoading={isProductsLoading}
+              refetchProducts={refetchProducts}
+            />
           </DashboardProductSection>
         </DashboardSection>
       </SectionContainer>

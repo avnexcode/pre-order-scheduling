@@ -5,8 +5,5 @@ export const createProductCategoryRequest = z.object({
   description: z.string().optional(),
 });
 
-export const updateProductCategoryRequest = createProductCategoryRequest
-  .partial()
-  .extend({
-    slug: z.string(),
-  });
+export const updateProductCategoryRequest =
+  createProductCategoryRequest.partial();

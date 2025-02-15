@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -9,11 +10,10 @@ import {
 } from "@/components/ui/table";
 import { renderElements } from "@/utils/render-elements";
 import { type Customer } from "@prisma/client";
+import { ScanEye, SquarePen } from "lucide-react";
 import Link from "next/link";
 import { DeleteCustomerDialog } from "../components/action/DeleteCustomerDialog";
-import { CustomerTableSkeleton } from "../components/skeleton/CustomerTableSkeleton";
-import { Button } from "@/components/ui/button";
-import { ScanEye, SquarePen } from "lucide-react";
+import { CustomerTableBodySkeleton } from "../components/skeleton/CustomerTableSkeleton";
 
 type CustomerTableProps = {
   customers?: Customer[];
@@ -26,9 +26,6 @@ export const CustomerTable = ({
   isCustomersLoading,
   refetchCustomers,
 }: CustomerTableProps) => {
-  if (isCustomersLoading) {
-    return <CustomerTableSkeleton />;
-  }
   return (
     <Table>
       <TableCaption>A list of your recent invoices.</TableCaption>
@@ -40,43 +37,47 @@ export const CustomerTable = ({
           <TableHead>Email</TableHead>
         </TableRow>
       </TableHeader>
-      <TableBody>
-        {renderElements({
-          of: customers,
-          keyExtractor: (customer) => customer.id,
-          render: (customer, index) => (
-            <TableRow>
-              <TableCell>{index + 1}</TableCell>
-              <TableCell className="capitalize">{customer.name}</TableCell>
-              <TableCell>{customer.phone}</TableCell>
-              <TableCell>{customer.email ?? "-"}</TableCell>
-              <TableCell className="space-x-1 text-right">
-                <Link href={`/dashboard/customer/${customer.id}/detail`}>
-                  <Button variant={"outline"} size={"sm"}>
-                    <ScanEye />
-                  </Button>
-                </Link>
-                <Link href={`/dashboard/customer/${customer.id}/edit`}>
-                  <Button variant={"outline"} size={"sm"}>
-                    <SquarePen />
-                  </Button>
-                </Link>
-                <DeleteCustomerDialog
-                  customerId={customer.id}
-                  refetchCustomers={refetchCustomers}
-                />
-              </TableCell>
-            </TableRow>
-          ),
-          fallback: (
-            <TableRow>
-              <TableCell colSpan={4} className="text-center">
-                Tidak ada data pelanggan
-              </TableCell>
-            </TableRow>
-          ),
-        })}
-      </TableBody>
+      {isCustomersLoading ? (
+        <CustomerTableBodySkeleton />
+      ) : (
+        <TableBody>
+          {renderElements({
+            of: customers,
+            keyExtractor: (customer) => customer.id,
+            render: (customer, index) => (
+              <TableRow>
+                <TableCell>{index + 1}</TableCell>
+                <TableCell className="capitalize">{customer.name}</TableCell>
+                <TableCell>{customer.phone}</TableCell>
+                <TableCell>{customer.email ?? "-"}</TableCell>
+                <TableCell className="space-x-1 text-right">
+                  <Link href={`/dashboard/customer/${customer.id}/detail`}>
+                    <Button variant={"outline"} size={"sm"}>
+                      <ScanEye />
+                    </Button>
+                  </Link>
+                  <Link href={`/dashboard/customer/${customer.id}/edit`}>
+                    <Button variant={"outline"} size={"sm"}>
+                      <SquarePen />
+                    </Button>
+                  </Link>
+                  <DeleteCustomerDialog
+                    customerId={customer.id}
+                    refetchCustomers={refetchCustomers}
+                  />
+                </TableCell>
+              </TableRow>
+            ),
+            fallback: (
+              <TableRow>
+                <TableCell colSpan={4} className="text-center">
+                  Tidak ada data pelanggan
+                </TableCell>
+              </TableRow>
+            ),
+          })}
+        </TableBody>
+      )}
     </Table>
   );
 };

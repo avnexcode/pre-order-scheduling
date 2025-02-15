@@ -15,13 +15,13 @@ type SidebarItemProps = {
 export const SidebarItem = (props: SidebarItemProps) => {
   const { theme } = useTheme();
   const pathName = usePathname();
-  const activeLinnk = pathName === props.url;
+  const activeLink = pathName === props.url;
   return (
     <SidebarMenuItem>
       <SidebarMenuButton asChild>
         <Link
           href={props.url}
-          className={cn(activeLinnk && "bg-zinc-200 dark:bg-zinc-800")}
+          className={cn(activeLink && "bg-zinc-200 dark:bg-zinc-800")}
         >
           <Icon
             name={props.icon as keyof typeof icons}

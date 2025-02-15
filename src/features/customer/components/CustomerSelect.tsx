@@ -67,14 +67,14 @@ export const CustomerSelect = <T extends FieldValues>({
             <SelectContent>
               {renderElements({
                 of: customers?.items,
-                keyExtractor: (customers) => customers.id,
-                render: (customers) => (
+                keyExtractor: (customer) => customer.id,
+                render: (customer) => (
                   <SelectItem
-                    key={customers.id}
-                    value={customers.id}
+                    key={customer.id}
+                    value={customer.id}
                     className="capitalize"
                   >
-                    {customers.name}
+                    {customer.name}
                   </SelectItem>
                 ),
                 fallback: (

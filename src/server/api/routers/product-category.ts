@@ -136,7 +136,7 @@ export const productCategoryRouter = createTRPCRouter({
   update: publicProcedure
     .input(
       z.object({
-        id: z.string().uuid(),
+        id: z.string(),
         request: updateProductCategoryRequest,
       }),
     )

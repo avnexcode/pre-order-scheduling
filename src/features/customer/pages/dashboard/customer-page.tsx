@@ -9,6 +9,7 @@ import { CustomerTable } from "../../tables";
 import { Button } from "@/components/ui/button";
 import { CirclePlus } from "lucide-react";
 import Link from "next/link";
+import { CustomerPagination } from "../../components/CustomerPagination";
 
 export const CustomerPage = () => {
   const {
@@ -18,6 +19,7 @@ export const CustomerPage = () => {
   } = api.customer.getAll.useQuery({
     limit: 10,
   });
+
   return (
     <PageContainer>
       <SectionContainer padded>
@@ -36,6 +38,7 @@ export const CustomerPage = () => {
               isCustomersLoading={isCustomersLoading}
               refetchCustomers={refetchCustomers}
             />
+            <CustomerPagination />
           </main>
         </DashboardSection>
       </SectionContainer>

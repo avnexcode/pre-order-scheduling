@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/table";
 import { renderElements } from "@/utils/render-elements";
 
-export const CustomerTableSkeleton = () => {
+export const ProductCategoryTableSkeleton = () => {
   return (
     <Table>
       <TableCaption>A list of your recent invoices.</TableCaption>
@@ -22,23 +22,14 @@ export const CustomerTableSkeleton = () => {
           <TableHead>
             <Skeleton className="h-3 w-full" />
           </TableHead>
-          <TableHead>
-            <Skeleton className="h-3 w-full" />
-          </TableHead>
-          <TableHead>
-            <Skeleton className="h-3 w-full" />
-          </TableHead>
-          <TableHead>
-            <Skeleton className="h-3 w-full" />
-          </TableHead>
         </TableRow>
       </TableHeader>
-      <CustomerTableBodySkeleton />
+      <ProductCategoryTableBodySkeleton />
     </Table>
   );
 };
 
-export const CustomerTableBodySkeleton = () => {
+export const ProductCategoryTableBodySkeleton = () => {
   return (
     <TableBody>
       {renderElements({
@@ -46,15 +37,6 @@ export const CustomerTableBodySkeleton = () => {
         keyExtractor: (_, index) => index,
         render: () => (
           <TableRow>
-            <TableCell>
-              <Skeleton className="h-3 w-full" />
-            </TableCell>
-            <TableCell>
-              <Skeleton className="h-3 w-full" />
-            </TableCell>
-            <TableCell>
-              <Skeleton className="h-3 w-full" />
-            </TableCell>
             <TableCell>
               <Skeleton className="h-3 w-full" />
             </TableCell>

@@ -10,7 +10,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import type { UpdateProductFormSchema } from "../types";
-import { ProductCategorySelect } from "@/features/product-category/components";
+import { CategorySelect } from "@/features/category/components";
 
 type EditProductFormInnerProps = {
   formId: string;
@@ -58,9 +58,10 @@ export const EditProductFormInner = ({
           </FormItem>
         )}
       />
-      <ProductCategorySelect<UpdateProductFormSchema>
-        name="product_category_id"
+      <CategorySelect<UpdateProductFormSchema>
+        name="category_id"
         label="Kategori"
+        required
       />
       <FormField
         control={form.control}

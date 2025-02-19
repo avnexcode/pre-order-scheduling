@@ -4,7 +4,7 @@ export const createProductFormSchema = z.object({
   name: z.string().min(1).max(150),
   price: z.string().min(1).max(50),
   description: z.string().optional(),
-  product_category_id: z.string().min(1),
+  category_id: z.string().min(1),
 });
 
 export const updateProductFormSchema = createProductFormSchema.partial();

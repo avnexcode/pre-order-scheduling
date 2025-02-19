@@ -4,8 +4,8 @@ import {
   SidebarGroupLabel,
   SidebarMenu,
 } from "@/components/ui/sidebar";
-import { SidebarItem } from "./SidebarItem";
 import { renderElements } from "@/utils/render-elements";
+import { SidebarItem } from "./SidebarItem";
 
 type SidebarGroupProps = {
   label: string;

@@ -24,7 +24,7 @@ export const CreateProductForm = () => {
     defaultValues: {
       name: "",
       price: "",
-      product_category_id: "",
+      category_id: "",
       description: "",
     },
     resolver: zodResolver(createProductFormSchema),

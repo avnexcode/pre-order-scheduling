@@ -19,6 +19,9 @@ export const productRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       try {
         const productCategories = await ctx.db.product.findMany({
+          include: {
+            category: true,
+          },
           take: input.limit + 1,
           ...(input.cursor && {
             cursor: {

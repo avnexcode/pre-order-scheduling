@@ -10,13 +10,14 @@ import {
 } from "@/components/ui/table";
 import { convertCurrency } from "@/utils/convert-currency";
 import { renderElements } from "@/utils/render-elements";
-import type { Product } from "@prisma/client";
 import { ScanEye, SquarePen } from "lucide-react";
 import Link from "next/link";
 import { DeleteProductDialog } from "../components/action";
+import { ProductTableBodySkeleton } from "../components/skeleton/ProductTableSkeleton";
+import type { ProductWithRelations } from "../types";
 
 type ProductTableProps = {
-  products?: Product[];
+  products?: ProductWithRelations[];
   isProductsLoading: boolean;
   refetchProducts: () => void;
 };
@@ -26,9 +27,6 @@ export const ProductTable = ({
   isProductsLoading,
   refetchProducts,
 }: ProductTableProps) => {
-  if (isProductsLoading) {
-    return <></>;
-  }
   return (
     <Table>
       <TableCaption>A list of your recent invoices.</TableCaption>
@@ -37,8 +35,10 @@ export const ProductTable = ({
           <TableHead className="w-[50px]">No</TableHead>
           <TableHead>Nama</TableHead>
           <TableHead>Harga</TableHead>
+          <TableHead>Kategori</TableHead>
         </TableRow>
       </TableHeader>
+      {isProductsLoading && <ProductTableBodySkeleton />}
       <TableBody>
         {renderElements({
           of: products,
@@ -49,6 +49,9 @@ export const ProductTable = ({
               <TableCell className="capitalize">{product.name}</TableCell>
               <TableCell className="capitalize">
                 {convertCurrency(product.price)}
+              </TableCell>
+              <TableCell className="capitalize">
+                {product.category.name}
               </TableCell>
               <TableCell className="space-x-1 text-right">
                 <Link href={`/dashboard/product/${product.id}/detail`}>

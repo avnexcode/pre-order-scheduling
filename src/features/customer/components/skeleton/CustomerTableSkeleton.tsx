@@ -42,7 +42,7 @@ export const CustomerTableBodySkeleton = () => {
   return (
     <TableBody>
       {renderElements({
-        of: [...new Array<undefined>(8)],
+        of: [...new Array<undefined>(25)],
         keyExtractor: (_, index) => index,
         render: () => (
           <TableRow>

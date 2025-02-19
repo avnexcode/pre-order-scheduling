@@ -16,7 +16,7 @@ export const DashboardProductSection = ({
     <section className={cn(sectionClassName)}>
       <nav className="flex items-center gap-x-5">
         <TabNavigation label="produk" href="/dashboard/product" />
-        <TabNavigation label="kategori" href="/dashboard/product-category" />
+        <TabNavigation label="kategori" href="/dashboard/category" />
       </nav>
       <main className={cn("mt-5", className)}>{children}</main>
     </section>

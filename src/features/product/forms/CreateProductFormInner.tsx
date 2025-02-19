@@ -9,7 +9,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import type { CreateProductFormSchema } from "../types";
-import { ProductCategorySelect } from "@/features/product-category/components";
+import { CategorySelect } from "@/features/category/components";
 
 type CreateProductFormInnerProps = {
   formId: string;
@@ -33,10 +33,10 @@ export const CreateProductFormInner = ({
         render={({ field }) => (
           <FormItem>
             <FormLabel>
-              Name Produk<span className="text-red-500">*</span>
+              Name<span className="text-red-500">*</span>
             </FormLabel>
             <FormControl>
-              <Input placeholder="Masukkan nama produk" {...field} />
+              <Input placeholder="Masukkan nama" {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -48,18 +48,19 @@ export const CreateProductFormInner = ({
         render={({ field }) => (
           <FormItem>
             <FormLabel>
-              Harga Produk<span className="text-red-500">*</span>
+              Harga<span className="text-red-500">*</span>
             </FormLabel>
             <FormControl>
-              <Input placeholder="Masukkan nama produk" {...field} />
+              <Input placeholder="Masukkan nama" {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>
         )}
       />
-      <ProductCategorySelect<CreateProductFormSchema>
-        name="product_category_id"
+      <CategorySelect<CreateProductFormSchema>
+        name="category_id"
         label="Kategori"
+        required
       />
       <FormField
         control={form.control}

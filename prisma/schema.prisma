@@ -26,10 +26,10 @@ model Profile {
 
 model Customer {
     id      String  @id @default(cuid())
-    name    String  @db.VarChar(150)
+    name    String  @unique @db.VarChar(150)
     email   String? @unique @db.VarChar(150)
     address String  @db.VarChar(255)
-    phone   String  @db.VarChar(20)
+    phone   String  @unique @db.VarChar(20)
     orders  Order[]
 
     created_at DateTime @default(now())
@@ -41,20 +41,21 @@ model Customer {
 model Product {
     id          String  @id @default(cuid())
     name        String  @db.VarChar(150)
-    slug        String
+    slug        String  @unique
     price       String  @db.VarChar(50)
     description String? @db.Text
 
-    product_category    ProductCategory? @relation(fields: [product_category_id], references: [id])
-    product_category_id String
+    category_id String
+    category    Category @relation(fields: [category_id], references: [id], onDelete: Restrict)
 
     created_at DateTime @default(now())
     updated_at DateTime @updatedAt
+    Order      Order[]
 
     @@map("products")
 }
 
-model ProductCategory {
+model Category {
     id          String  @id @default(cuid())
     name        String  @unique @db.VarChar(150)
     slug        String  @unique
@@ -73,17 +74,25 @@ enum OrderStatus {
     SUCCESS
 }
 
-model Order {
-    id           String      @id @default(cuid())
-    label        String      @db.VarChar(100)
-    description  String?     @db.Text
-    total_amount String
-    order_status OrderStatus @default(PENDING)
+enum OrderCategory {
+    WHOLESALE // grosir
+    RETAIL // ecer
+}
 
-    order_category_id String
-    order_category    OrderCategory @relation(fields: [order_category_id], references: [id])
-    customer_id       String?
-    customer          Customer?     @relation(fields: [customer_id], references: [id])
+model Order {
+    id          String        @id @default(cuid())
+    label       String        @unique @db.VarChar(100)
+    description String?       @db.Text
+    total       String        @db.VarChar(50)
+    status      OrderStatus   @default(PENDING)
+    category    OrderCategory @default(RETAIL)
+
+    customer_id    String
+    product_id     String
+    transaction_id String?
+    customer       Customer     @relation(fields: [customer_id], references: [id], onDelete: Restrict)
+    product        Product      @relation(fields: [product_id], references: [id], onDelete: Restrict)
+    transaction    Transaction?
 
     created_at DateTime @default(now())
     updated_at DateTime @updatedAt
@@ -91,16 +100,38 @@ model Order {
     @@map("orders")
 }
 
-model OrderCategory {
-    id          String  @id @default(cuid())
-    name        String  @db.VarChar(150)
-    slug        String
-    description String? @db.Text
+enum TransactionStatus {
+    UNPAID
+    PARTIALLY_PAID
+    PAID
+}
 
-    orders Order[]
+model Transaction {
+    id           String            @id @default(cuid())
+    total_amount String
+    amount_paid  String?
+    amount_due   String?
+    status       TransactionStatus @default(UNPAID)
+
+    order_id        String          @unique
+    order           Order           @relation(fields: [order_id], references: [id])
+    payment_records PaymentRecord[]
 
     created_at DateTime @default(now())
     updated_at DateTime @updatedAt
 
-    @@map("order_categories")
+    @@map("transactions")
+}
+
+model PaymentRecord {
+    id     String @id @default(cuid())
+    amount String
+
+    transaction_id String
+    transaction    Transaction @relation(fields: [transaction_id], references: [id])
+
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+
+    @@map("payment_records")
 }

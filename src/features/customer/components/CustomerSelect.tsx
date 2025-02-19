@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 import { api } from "@/utils/api";
 import { renderElements } from "@/utils/render-elements";
 import { useEffect, useState } from "react";
@@ -20,12 +21,16 @@ import { useFormContext, type FieldValues, type Path } from "react-hook-form";
 
 type CustomerSelectProps<T extends FieldValues> = {
   name: Path<T>;
-  label?: string;
+  label: string;
+  required?: boolean;
+  className?: string;
 };
 
 export const CustomerSelect = <T extends FieldValues>({
   name,
   label,
+  required = false,
+  className,
 }: CustomerSelectProps<T>) => {
   const form = useFormContext<T>();
   const { data: customers, isLoading: isCustomersLoading } =
@@ -40,7 +45,7 @@ export const CustomerSelect = <T extends FieldValues>({
 
   if (!isReady) {
     return (
-      <div className="space-y-4">
+      <div className="w-full space-y-4">
         <Skeleton className="h-5 w-44" />
         <Skeleton className="h-9 w-full" />
       </div>
@@ -52,16 +57,18 @@ export const CustomerSelect = <T extends FieldValues>({
       control={form.control}
       name={name}
       render={({ field: { value, onChange } }) => (
-        <FormItem>
-          <FormLabel>{label ?? "Pilih kategori"}</FormLabel>
+        <FormItem className={cn("w-full", className)}>
+          <FormLabel className="capitalize">
+            {label} {required && <span className="text-red-500">*</span>}
+          </FormLabel>
           <Select
             onValueChange={onChange}
             value={value ?? ""}
             defaultValue={value}
           >
             <FormControl>
-              <SelectTrigger className="capitalize">
-                <SelectValue placeholder="Pilih kategori" />
+              <SelectTrigger>
+                <SelectValue placeholder={`Pilih ${label.toLowerCase()}`} />
               </SelectTrigger>
             </FormControl>
             <SelectContent>

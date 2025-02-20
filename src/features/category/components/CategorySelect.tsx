@@ -31,7 +31,11 @@ export const CategorySelect = <T extends FieldValues>({
 }: CategorySelectProps<T>) => {
   const form = useFormContext<T>();
   const { data: categories, isLoading: isCategoriesLoading } =
-    api.category.getAll.useQuery({});
+    api.category.getAll.useQuery({
+      params: {
+        limit: 100,
+      },
+    });
   const [isReady, setIsReady] = useState<boolean>(false);
 
   useEffect(() => {
@@ -70,7 +74,7 @@ export const CategorySelect = <T extends FieldValues>({
             </FormControl>
             <SelectContent>
               {renderElements({
-                of: categories?.items,
+                of: categories?.data,
                 keyExtractor: (category) => category.id,
                 render: (category) => (
                   <SelectItem

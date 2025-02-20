@@ -97,7 +97,7 @@ export const TransactionCard = ({
             </p>
           </div>
           <div>
-            <p className="text-sm text-gray-500">Total Amount</p>
+            <p className="text-sm text-gray-500">Total Yang Harus Dibayar</p>
             <p className="font-medium">
               {convertCurrency(transaction.total_amount)}
             </p>

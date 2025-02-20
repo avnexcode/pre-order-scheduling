@@ -7,8 +7,23 @@ export type UpdateOrderFormSchema = z.infer<typeof updateOrderFormSchema>;
 
 export type OrderWithRelations = Prisma.OrderGetPayload<{
   include: {
-    customer: true;
-    product: true;
-    transaction: true;
+    customer: {
+      select: {
+        name: true;
+        phone: true;
+        email: true;
+        address: true;
+      };
+    };
+    product: {
+      select: {
+        name: true;
+      };
+    };
+    transaction: {
+      select: {
+        total_amount: true;
+      };
+    };
   };
 }>;

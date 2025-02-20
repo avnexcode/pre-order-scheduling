@@ -1,64 +1,97 @@
-import { z } from "zod";
-import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
+import { queryParams } from "@/server/validations/api.validation";
 import {
   createOrderRequest,
   updateOrderRequest,
 } from "@/server/validations/order.validation";
+import { TRPCError } from "@trpc/server";
+import { z } from "zod";
 
 export const orderRouter = createTRPCRouter({
   getAll: publicProcedure
     .input(
       z.object({
-        limit: z.number().min(1).max(100).optional().default(50),
-        cursor: z.string().optional(),
-        search: z.string().optional(),
+        params: queryParams,
       }),
     )
     .query(async ({ ctx, input }) => {
+      const { db } = ctx;
+      const { params } = input;
+      const { page, limit, search, sort, order } = params;
       try {
-        const orders = await ctx.db.order.findMany({
-          take: input.limit + 1,
-          ...(input.cursor && {
-            cursor: {
-              id: input.cursor,
-            },
-            skip: 1,
-          }),
-          ...(input.search && {
+        const skip = (page - 1) * limit;
+
+        const totalCount = await db.order.count({
+          ...(search && {
             where: {
               OR: [
-                { label: { contains: input.search, mode: "insensitive" } },
+                { label: { contains: search, mode: "insensitive" } },
                 {
                   customer: {
-                    name: { contains: input.search, mode: "insensitive" },
+                    name: { contains: search, mode: "insensitive" },
                   },
                   product: {
-                    name: { contains: input.search, mode: "insensitive" },
+                    name: { contains: search, mode: "insensitive" },
+                  },
+                },
+              ],
+            },
+          }),
+        });
+
+        const orders = await db.order.findMany({
+          take: limit,
+          skip,
+          ...(search && {
+            where: {
+              OR: [
+                { label: { contains: search, mode: "insensitive" } },
+                {
+                  customer: {
+                    name: { contains: search, mode: "insensitive" },
+                  },
+                  product: {
+                    name: { contains: search, mode: "insensitive" },
                   },
                 },
               ],
             },
           }),
           orderBy: {
-            created_at: "desc",
+            [sort]: order,
           },
           include: {
-            customer: true,
-            product: true,
-            transaction: true,
+            customer: {
+              select: {
+                name: true,
+                phone: true,
+                email: true,
+                address: true,
+              },
+            },
+            product: {
+              select: {
+                name: true,
+              },
+            },
+            transaction: {
+              select: {
+                total_amount: true,
+              },
+            },
           },
         });
 
-        let nextCursor: string | undefined = undefined;
-        if (orders.length > input.limit) {
-          const nextItem = orders.pop();
-          nextCursor = nextItem?.id;
-        }
+        const lastPage = Math.ceil(totalCount / limit);
 
         return {
-          items: orders,
-          nextCursor,
+          data: orders,
+          meta: {
+            total: totalCount,
+            limit,
+            page,
+            last_page: lastPage,
+          },
         };
       } catch (error) {
         throw new TRPCError({
@@ -72,15 +105,17 @@ export const orderRouter = createTRPCRouter({
   getById: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
+      const { db } = ctx;
+      const { id } = input;
       try {
-        const order = await ctx.db.order.findUnique({
-          where: { id: input.id },
+        const order = await db.order.findUnique({
+          where: { id },
         });
 
         if (!order) {
           throw new TRPCError({
             code: "NOT_FOUND",
-            message: `order with ID ${input.id} not found`,
+            message: `Data pesanan dengan id : ${id} tidak ditemukan`,
           });
         }
 

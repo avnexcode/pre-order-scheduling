@@ -28,11 +28,12 @@ export const CategoryTable = ({
 }: CategoryTableProps) => {
   return (
     <Table>
-      <TableCaption>A list of your recent invoices.</TableCaption>
+      <TableCaption>List data kategori</TableCaption>
       <TableHeader>
         <TableRow>
           <TableHead className="w-[50px]">No</TableHead>
           <TableHead>Nama</TableHead>
+          <TableHead className="w-[200px]">Aksi</TableHead>
         </TableRow>
       </TableHeader>
       {isCategoriesLoading && <CategoryTableBodySkeleton />}
@@ -44,7 +45,7 @@ export const CategoryTable = ({
             <TableRow>
               <TableCell>{index + 1}</TableCell>
               <TableCell className="capitalize">{category.name}</TableCell>
-              <TableCell className="space-x-1 text-right">
+              <TableCell className="space-x-1">
                 <Link href={`/dashboard/category/${category.id}/detail`}>
                   <Button variant={"outline"} size={"sm"}>
                     <ScanEye />
@@ -62,9 +63,10 @@ export const CategoryTable = ({
               </TableCell>
             </TableRow>
           ),
+          isLoading: isCategoriesLoading,
           fallback: (
             <TableRow>
-              <TableCell colSpan={2} className="text-center">
+              <TableCell colSpan={3} className="text-center">
                 Tidak ada data kategori
               </TableCell>
             </TableRow>

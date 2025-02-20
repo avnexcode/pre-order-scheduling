@@ -13,6 +13,8 @@ type RenderElementsProps<T> = {
   keyExtractor?: (item: T, index: number) => string | number;
   /** Optional fallback element when array is empty */
   fallback?: React.ReactNode;
+  /** Optional loading element when array is loading */
+  isLoading?: boolean;
 };
 
 /**
@@ -26,18 +28,19 @@ export const renderElements = <T>({
   render,
   keyExtractor,
   fallback,
+  isLoading = false,
 }: RenderElementsProps<T>): React.ReactNode => {
   // Handle null or undefined array
   if (!of) return fallback ?? null;
 
   // Handle non-array input
-  if (!Array.isArray(of)) {
+  if (!isLoading && !Array.isArray(of)) {
     console.warn('renderElements: "of" prop must be an array');
     return fallback ?? null;
   }
 
   // Handle empty array
-  if (of.length === 0) return fallback ?? null;
+  if (!isLoading && of.length === 0) return fallback ?? null;
 
   return of.map((item, index) => {
     const element = render(item, index);

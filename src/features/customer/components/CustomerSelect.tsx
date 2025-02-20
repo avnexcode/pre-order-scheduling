@@ -34,7 +34,11 @@ export const CustomerSelect = <T extends FieldValues>({
 }: CustomerSelectProps<T>) => {
   const form = useFormContext<T>();
   const { data: customers, isLoading: isCustomersLoading } =
-    api.customer.getAll.useQuery({});
+    api.customer.getAll.useQuery({
+      params: {
+        limit: 100,
+      },
+    });
   const [isReady, setIsReady] = useState<boolean>(false);
 
   useEffect(() => {
@@ -73,7 +77,7 @@ export const CustomerSelect = <T extends FieldValues>({
             </FormControl>
             <SelectContent>
               {renderElements({
-                of: customers?.items,
+                of: customers?.data,
                 keyExtractor: (customer) => customer.id,
                 render: (customer) => (
                   <SelectItem

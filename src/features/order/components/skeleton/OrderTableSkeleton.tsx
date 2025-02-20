@@ -28,7 +28,13 @@ export const OrderTableSkeleton = () => {
           <TableHead>
             <Skeleton className="h-3 w-full" />
           </TableHead>
+          <TableHead className="w-[150px]">
+            <Skeleton className="h-3 w-full" />
+          </TableHead>
           <TableHead>
+            <Skeleton className="h-3 w-full" />
+          </TableHead>
+          <TableHead className="w-[200px]">
             <Skeleton className="h-3 w-full" />
           </TableHead>
         </TableRow>
@@ -42,7 +48,7 @@ export const OrderTableBodySkeleton = () => {
   return (
     <TableBody>
       {renderElements({
-        of: [...new Array<undefined>(25)],
+        of: [...new Array<undefined>(10)],
         keyExtractor: (_, index) => index,
         render: () => <OrderTableItemSkeleton />,
       })}
@@ -53,6 +59,12 @@ export const OrderTableBodySkeleton = () => {
 export const OrderTableItemSkeleton = () => {
   return (
     <TableRow>
+      <TableCell>
+        <Skeleton className="h-3 w-full" />
+      </TableCell>
+      <TableCell>
+        <Skeleton className="h-3 w-full" />
+      </TableCell>
       <TableCell>
         <Skeleton className="h-3 w-full" />
       </TableCell>

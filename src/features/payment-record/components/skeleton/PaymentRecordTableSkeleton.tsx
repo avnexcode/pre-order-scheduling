@@ -22,13 +22,10 @@ export const PaymentRecordTableSkeleton = () => {
           <TableHead>
             <Skeleton className="h-3 w-full" />
           </TableHead>
-          <TableHead>
+          <TableHead className="w-[300px]">
             <Skeleton className="h-3 w-full" />
           </TableHead>
-          <TableHead>
-            <Skeleton className="h-3 w-full" />
-          </TableHead>
-          <TableHead>
+          <TableHead className="w-[100px]">
             <Skeleton className="h-3 w-full" />
           </TableHead>
         </TableRow>
@@ -42,7 +39,7 @@ export const PaymentRecordTableBodySkeleton = () => {
   return (
     <TableBody>
       {renderElements({
-        of: [...new Array<undefined>(25)],
+        of: [...new Array<undefined>(10)],
         keyExtractor: (_, index) => index,
         render: () => <PaymentRecordTableItemSkeleton />,
       })}
@@ -53,9 +50,6 @@ export const PaymentRecordTableBodySkeleton = () => {
 export const PaymentRecordTableItemSkeleton = () => {
   return (
     <TableRow>
-      <TableCell>
-        <Skeleton className="h-3 w-full" />
-      </TableCell>
       <TableCell>
         <Skeleton className="h-3 w-full" />
       </TableCell>

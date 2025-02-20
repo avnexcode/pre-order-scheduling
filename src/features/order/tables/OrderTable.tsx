@@ -36,8 +36,9 @@ export const OrderTable = ({
           <TableHead>Label</TableHead>
           <TableHead>Pelanggan</TableHead>
           <TableHead>Produk</TableHead>
-          <TableHead>Total Pesanan</TableHead>
+          <TableHead className="w-[150px]">Total Pesanan</TableHead>
           <TableHead>Total Harga</TableHead>
+          <TableHead className="w-[200px]">Aksi</TableHead>
         </TableRow>
       </TableHeader>
       {isOrdersLoading && <OrderTableBodySkeleton />}
@@ -57,7 +58,7 @@ export const OrderTable = ({
               <TableCell className="capitalize">
                 {convertCurrency(order.transaction?.total_amount ?? "")}
               </TableCell>
-              <TableCell className="space-x-1 text-right">
+              <TableCell className="space-x-1">
                 <Link href={`/dashboard/order/${order.id}/detail`}>
                   <Button variant={"outline"} size={"sm"}>
                     <ScanEye />
@@ -75,9 +76,10 @@ export const OrderTable = ({
               </TableCell>
             </TableRow>
           ),
+          isLoading: isOrdersLoading,
           fallback: (
             <TableRow>
-              <TableCell colSpan={2} className="text-center">
+              <TableCell colSpan={7} className="text-center">
                 Tidak ada data pesanan
               </TableCell>
             </TableRow>

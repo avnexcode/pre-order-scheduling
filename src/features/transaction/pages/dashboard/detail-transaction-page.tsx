@@ -38,12 +38,15 @@ export const DetailTransactionPage = () => {
             transaction={transaction as TransactionWithRelations}
             isTransactionLoading={isTransactionLoading}
           />
-          <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-10">
             <CreatePaymentRecordForm
+              isLoading={isTransactionLoading}
+              isAddPaymentDisabled={transaction?.status === "PAID"}
               transaction_id={transactionId}
               refetchTransaction={refetchTransaction}
             />
             <PaymentRecordTable
+              refetchTransaction={refetchTransaction}
               paymentRecords={transaction?.payment_records}
               isPaymentRecordsLoading={isTransactionLoading}
             />

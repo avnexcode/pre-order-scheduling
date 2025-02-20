@@ -15,11 +15,13 @@ import { CreateCustomerFormInner } from "./CreateCustomerFormInner";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { Form } from "@/components/ui/form";
-import { toast } from "sonner";
+import { toast as sonner } from "sonner";
 import { useRouter } from "next/router";
+import { useToast } from "@/hooks/use-toast";
 
 export const CreateCustomerForm = () => {
   const router = useRouter();
+  const { toast } = useToast();
   const form = useForm<CreateCustomerFormSchema>({
     defaultValues: {
       name: "",
@@ -33,8 +35,15 @@ export const CreateCustomerForm = () => {
   const { mutate: createCustomer, isPending: isCreateCustomerPending } =
     api.customer.create.useMutation({
       onSuccess: () => {
-        toast.success("Berhasil menambahkan data pelanggan");
+        sonner.success("Berhasil menambahkan data pelanggan");
         void router.replace("/dashboard/customer");
+      },
+      onError: (error) => {
+        toast({
+          title: "Error",
+          variant: "destructive",
+          description: error.message,
+        });
       },
     });
 

@@ -15,7 +15,7 @@ export const OrderPage = () => {
     data: orders,
     isLoading: isOrdersLoading,
     refetch: refetchOrders,
-  } = api.order.getAll.useQuery({ limit: 100 });
+  } = api.order.getAll.useQuery({ params: { limit: 100 } });
   return (
     <PageContainer>
       <SectionContainer padded>
@@ -30,7 +30,7 @@ export const OrderPage = () => {
             </Link>
           </header>
           <OrderTable
-            orders={orders?.items}
+            orders={orders?.data}
             isOrdersLoading={isOrdersLoading}
             refetchOrders={refetchOrders}
           />

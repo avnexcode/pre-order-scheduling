@@ -14,12 +14,16 @@ import { Form } from "@/components/ui/form";
 import { api } from "@/utils";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
+import { toast as sonner } from "sonner";
 import { createPaymentRecordFormSchema } from "../schemas";
 import type { CreatePaymentRecordFormSchema } from "../types";
 import { CreatePaymentRecordFormInner } from "./CreatePaymentRecordFormInner";
+import { useToast } from "@/hooks/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type CreatePaymentRecordFormProps = {
+  isAddPaymentDisabled: boolean;
+  isLoading: boolean;
   transaction_id: string;
   refetchTransaction: () => void;
 };
@@ -27,7 +31,10 @@ type CreatePaymentRecordFormProps = {
 export const CreatePaymentRecordForm = ({
   transaction_id,
   refetchTransaction,
+  isAddPaymentDisabled,
+  isLoading,
 }: CreatePaymentRecordFormProps) => {
+  const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const form = useForm<CreatePaymentRecordFormSchema>({
     defaultValues: {
@@ -41,9 +48,16 @@ export const CreatePaymentRecordForm = ({
     isPending: isCreatePaymentRecordPending,
   } = api.paymentRecord.create.useMutation({
     onSuccess: () => {
-      toast.success("Berhasil menambahkan catatan pembayaran");
+      sonner.success("Berhasil menambahkan catatan pembayaran");
       refetchTransaction();
       setIsDialogOpen(false);
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        variant: "destructive",
+        description: error.message,
+      });
     },
   });
 
@@ -53,7 +67,13 @@ export const CreatePaymentRecordForm = ({
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
-        <Button>Buat Catatan Pembayaran</Button>
+        {isLoading ? (
+          <Skeleton className="h-10 w-full" />
+        ) : (
+          <Button disabled={isAddPaymentDisabled}>
+            Buat Catatan Pembayaran
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

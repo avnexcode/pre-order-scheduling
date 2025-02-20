@@ -13,11 +13,13 @@ import { api } from "@/utils/api";
 
 export const CategoryPage = () => {
   const {
-    data: Categories,
+    data: categories,
     isLoading: isCategoriesLoading,
     refetch: refetchCategories,
   } = api.category.getAll.useQuery({
-    limit: 100,
+    params: {
+      limit: 100,
+    },
   });
 
   return (
@@ -29,12 +31,12 @@ export const CategoryPage = () => {
               <Link href={"/dashboard/category/create"}>
                 <Button>
                   <CirclePlus />
-                  Tambahkan Kategori Produk
+                  Tambahkan Kategori
                 </Button>
               </Link>
             </header>
             <CategoryTable
-              categories={Categories?.items}
+              categories={categories?.data}
               isCategoriesLoading={isCategoriesLoading}
               refetchCategories={refetchCategories}
             />

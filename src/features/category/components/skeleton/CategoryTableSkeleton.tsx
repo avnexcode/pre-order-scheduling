@@ -20,6 +20,9 @@ export const CategoryTableSkeleton = () => {
           <TableHead>
             <Skeleton className="h-3 w-full" />
           </TableHead>
+          <TableHead className="w-[200px]">
+            <Skeleton className="h-3 w-full" />
+          </TableHead>
         </TableRow>
       </TableHeader>
       <CategoryTableBodySkeleton />
@@ -31,19 +34,26 @@ export const CategoryTableBodySkeleton = () => {
   return (
     <TableBody>
       {renderElements({
-        of: [...new Array<undefined>(25)],
+        of: [...new Array<undefined>(10)],
         keyExtractor: (_, index) => index,
-        render: () => (
-          <TableRow>
-            <TableCell>
-              <Skeleton className="h-3 w-full" />
-            </TableCell>
-            <TableCell>
-              <Skeleton className="h-3 w-full" />
-            </TableCell>
-          </TableRow>
-        ),
+        render: () => <CategoryTableItemSkeleton />,
       })}
     </TableBody>
+  );
+};
+
+export const CategoryTableItemSkeleton = () => {
+  return (
+    <TableRow>
+      <TableCell>
+        <Skeleton className="h-3 w-full" />
+      </TableCell>
+      <TableCell>
+        <Skeleton className="h-3 w-full" />
+      </TableCell>
+      <TableCell>
+        <Skeleton className="h-3 w-full" />
+      </TableCell>
+    </TableRow>
   );
 };

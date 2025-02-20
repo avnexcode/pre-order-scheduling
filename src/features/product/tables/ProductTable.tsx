@@ -29,13 +29,14 @@ export const ProductTable = ({
 }: ProductTableProps) => {
   return (
     <Table>
-      <TableCaption>A list of your recent invoices.</TableCaption>
+      <TableCaption>List data produk</TableCaption>
       <TableHeader>
         <TableRow>
           <TableHead className="w-[50px]">No</TableHead>
           <TableHead>Nama</TableHead>
           <TableHead>Harga</TableHead>
           <TableHead>Kategori</TableHead>
+          <TableHead className="w-[200px]">Aksi</TableHead>
         </TableRow>
       </TableHeader>
       {isProductsLoading && <ProductTableBodySkeleton />}
@@ -53,7 +54,7 @@ export const ProductTable = ({
               <TableCell className="capitalize">
                 {product.category.name}
               </TableCell>
-              <TableCell className="space-x-1 text-right">
+              <TableCell className="space-x-1">
                 <Link href={`/dashboard/product/${product.id}/detail`}>
                   <Button variant={"outline"} size={"sm"}>
                     <ScanEye />
@@ -71,9 +72,10 @@ export const ProductTable = ({
               </TableCell>
             </TableRow>
           ),
+          isLoading: isProductsLoading,
           fallback: (
             <TableRow>
-              <TableCell colSpan={3} className="text-center">
+              <TableCell colSpan={5} className="text-center">
                 Tidak ada data produk
               </TableCell>
             </TableRow>

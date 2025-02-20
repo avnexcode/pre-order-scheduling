@@ -31,6 +31,12 @@ export const TransactionTableSkeleton = () => {
           <TableHead>
             <Skeleton className="h-3 w-full" />
           </TableHead>
+          <TableHead className="w-[150px]">
+            <Skeleton className="h-3 w-full" />
+          </TableHead>
+          <TableHead className="w-[100px]">
+            <Skeleton className="h-3 w-full" />
+          </TableHead>
         </TableRow>
       </TableHeader>
       <TransactionTableBodySkeleton />
@@ -42,7 +48,7 @@ export const TransactionTableBodySkeleton = () => {
   return (
     <TableBody>
       {renderElements({
-        of: [...new Array<undefined>(25)],
+        of: [...new Array<undefined>(10)],
         keyExtractor: (_, index) => index,
         render: () => <TransactionTableItemSkeleton />,
       })}
@@ -53,6 +59,12 @@ export const TransactionTableBodySkeleton = () => {
 export const TransactionTableItemSkeleton = () => {
   return (
     <TableRow>
+      <TableCell>
+        <Skeleton className="h-3 w-full" />
+      </TableCell>
+      <TableCell>
+        <Skeleton className="h-3 w-full" />
+      </TableCell>
       <TableCell>
         <Skeleton className="h-3 w-full" />
       </TableCell>

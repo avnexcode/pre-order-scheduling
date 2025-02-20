@@ -10,6 +10,10 @@ export type UpdateProductFormSchema = z.infer<typeof updateProductFormSchema>;
 
 export type ProductWithRelations = Prisma.ProductGetPayload<{
   include: {
-    category: true;
+    category: {
+      select: {
+        name: true;
+      };
+    };
   };
 }>;

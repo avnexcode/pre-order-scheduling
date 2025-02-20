@@ -10,23 +10,32 @@ import {
 } from "@/components/ui/table";
 import { convertCurrency } from "@/utils/convert-currency";
 import { renderElements } from "@/utils/render-elements";
-import { ScanEye, SquarePen } from "lucide-react";
+import type { TransactionStatus } from "@prisma/client";
+import { ScanEye } from "lucide-react";
 import Link from "next/link";
 import { TransactionTableBodySkeleton } from "../components/skeleton/TransactionTableSkeleton";
 import type { TransactionWithRelations } from "../types";
 
 type TransactionTableProps = {
   transactions?: TransactionWithRelations[];
-  isCategoriesLoading: boolean;
+  isTransactionsLoading: boolean;
 };
 
 export const TransactionTable = ({
   transactions,
-  isCategoriesLoading,
+  isTransactionsLoading,
 }: TransactionTableProps) => {
+  const displayStatus = (status: TransactionStatus) => {
+    return status === "PAID"
+      ? "LUNAS"
+      : status === "PARTIALLY_PAID"
+        ? "DALAM CICILAN"
+        : "BELUM DIBAYAR";
+  };
+
   return (
     <Table>
-      <TableCaption>A list of your recent invoices.</TableCaption>
+      <TableCaption>Data transaksi</TableCaption>
       <TableHeader>
         <TableRow>
           <TableHead className="w-[50px]">No</TableHead>
@@ -34,9 +43,11 @@ export const TransactionTable = ({
           <TableHead>Total</TableHead>
           <TableHead>Dibayar</TableHead>
           <TableHead>Sisa</TableHead>
+          <TableHead className="w-[150px]">Status</TableHead>
+          <TableHead className="w-[100px]">Aksi</TableHead>
         </TableRow>
       </TableHeader>
-      {isCategoriesLoading && <TransactionTableBodySkeleton />}
+      {isTransactionsLoading && <TransactionTableBodySkeleton />}
       <TableBody>
         {renderElements({
           of: transactions,
@@ -58,24 +69,23 @@ export const TransactionTable = ({
               <TableCell className="capitalize">
                 {convertCurrency(transaction.amount_due ?? "")}
               </TableCell>
-              <TableCell className="space-x-1 text-right">
+              <TableCell className="capitalize">
+                {displayStatus(transaction.status)}
+              </TableCell>
+              <TableCell className="w-[100px] space-x-1 whitespace-nowrap">
                 <Link href={`/dashboard/transaction/${transaction.id}/detail`}>
                   <Button variant={"outline"} size={"sm"}>
                     <ScanEye />
                   </Button>
                 </Link>
-                <Link href={`/dashboard/transaction/${transaction.id}/edit`}>
-                  <Button variant={"outline"} size={"sm"}>
-                    <SquarePen />
-                  </Button>
-                </Link>
               </TableCell>
             </TableRow>
           ),
+          isLoading: isTransactionsLoading,
           fallback: (
             <TableRow>
-              <TableCell colSpan={2} className="text-center">
-                Tidak ada data kategori
+              <TableCell colSpan={7} className="text-center">
+                Tidak ada data transaksi
               </TableCell>
             </TableRow>
           ),

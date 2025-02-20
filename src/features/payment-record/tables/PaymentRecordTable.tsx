@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -8,32 +7,35 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { renderElements } from "@/utils/render-elements";
-import { ScanEye, SquarePen } from "lucide-react";
-import Link from "next/link";
-import type { PaymentRecordWithRelations } from "../types";
-import { PaymentRecordTableBodySkeleton } from "../components/skeleton";
 import { convertCurrency } from "@/utils/convert-currency";
 import { formatDate } from "@/utils/format-date";
+import { renderElements } from "@/utils/render-elements";
 import { type PaymentRecord } from "@prisma/client";
+import { PaymentRecordTableBodySkeleton } from "../components/skeleton";
+import { EditPaymentRecordForm } from "../forms/EditPaymentRecordForm";
+import type { PaymentRecordWithRelations } from "../types";
+import { DeletePaymentRecordDialog } from "../components/action";
 
 type PaymentRecordTableProps = {
   paymentRecords?: PaymentRecord[] | PaymentRecordWithRelations[];
   isPaymentRecordsLoading: boolean;
+  refetchTransaction: () => void;
 };
 
 export const PaymentRecordTable = ({
   paymentRecords,
   isPaymentRecordsLoading,
+  refetchTransaction,
 }: PaymentRecordTableProps) => {
   return (
     <Table>
-      <TableCaption>A list of your recent invoices.</TableCaption>
+      <TableCaption>Data riwayat pembayaran</TableCaption>
       <TableHeader>
         <TableRow>
           <TableHead className="w-[50px]">No</TableHead>
           <TableHead>Jumlah Dibayar</TableHead>
-          <TableHead>Tanggal Pembayaran</TableHead>
+          <TableHead className="w-[300px]">Tanggal Pembayaran</TableHead>
+          <TableHead className="w-[100px]">Aksi</TableHead>
         </TableRow>
       </TableHeader>
       {isPaymentRecordsLoading && <PaymentRecordTableBodySkeleton />}
@@ -47,30 +49,25 @@ export const PaymentRecordTable = ({
               <TableCell className="capitalize">
                 {convertCurrency(paymentRecord.amount)}
               </TableCell>
-              <TableCell className="capitalize">
+              <TableCell className="w-[300px] capitalize">
                 {formatDate(paymentRecord.created_at)}
               </TableCell>
-              <TableCell className="space-x-1 text-right">
-                <Link
-                  href={`/dashboard/payment-record/${paymentRecord.id}/detail`}
-                >
-                  <Button variant={"outline"} size={"sm"}>
-                    <ScanEye />
-                  </Button>
-                </Link>
-                <Link
-                  href={`/dashboard/payment-record/${paymentRecord.id}/edit`}
-                >
-                  <Button variant={"outline"} size={"sm"}>
-                    <SquarePen />
-                  </Button>
-                </Link>
+              <TableCell className="w-[100px] space-x-1 whitespace-nowrap">
+                <EditPaymentRecordForm
+                  paymentRecordId={paymentRecord.id}
+                  refetchTransaction={refetchTransaction}
+                />
+                <DeletePaymentRecordDialog
+                  paymentRecordId={paymentRecord.id}
+                  refetchTransaction={refetchTransaction}
+                />
               </TableCell>
             </TableRow>
           ),
+          isLoading: isPaymentRecordsLoading,
           fallback: (
             <TableRow>
-              <TableCell colSpan={2} className="text-center">
+              <TableCell colSpan={4} className="text-center">
                 Tidak ada data kategori
               </TableCell>
             </TableRow>

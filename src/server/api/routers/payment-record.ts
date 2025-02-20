@@ -1,109 +1,48 @@
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
-import { createPaymentRecordRequest } from "@/server/validations/payment-record.validation";
+import {
+  createPaymentRecordRequest,
+  updatePaymentRecordRequest,
+} from "@/server/validations/payment-record.validation";
+import { type TransactionStatus } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { updateCategoryRequest } from "../../validations/category.validation";
-import { type TransactionStatus } from "@prisma/client";
 
 export const paymentRecordRouter = createTRPCRouter({
-  getAll: publicProcedure
-    .input(
-      z.object({
-        limit: z.number().min(1).max(100).optional().default(50),
-        cursor: z.string().optional(),
-        search: z.string().optional(),
-        transaction_id: z.string().optional(),
-      }),
-    )
-    .query(async ({ ctx, input }) => {
-      try {
-        if (!input.transaction_id) {
-          throw new TRPCError({
-            code: "NOT_FOUND",
-            message: "Data transaksi tidak ditemukan",
-          });
-        }
-
-        const paymentRecords = await ctx.db.paymentRecord.findMany({
-          where: { transaction_id: input.transaction_id },
-          take: input.limit + 1,
-          ...(input.cursor && {
-            cursor: {
-              id: input.cursor,
-            },
-            skip: 1,
-          }),
-          ...(input.search && {
-            where: {
-              OR: [
-                {
-                  amount: { contains: input.search, mode: "insensitive" },
-                },
-              ],
-            },
-          }),
-          orderBy: {
-            created_at: "desc",
-          },
-        });
-
-        let nextCursor: string | undefined = undefined;
-
-        if (paymentRecords.length > input.limit) {
-          const nextItem = paymentRecords.pop();
-          nextCursor = nextItem?.id;
-        }
-
-        return {
-          items: paymentRecords,
-          nextCursor,
-        };
-      } catch (error) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to fetch  payment records",
-          cause: error,
-        });
-      }
-    }),
-
   getById: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
+      const { db } = ctx;
+      const { id } = input;
       try {
-        const Category = await ctx.db.category.findUnique({
-          where: { id: input.id },
+        const paymentRecord = await db.paymentRecord.findUnique({
+          where: { id },
         });
 
-        if (!Category) {
+        if (!paymentRecord) {
           throw new TRPCError({
             code: "NOT_FOUND",
-            message: ` category with ID ${input.id} not found`,
+            message: `Riwayat pembayaran dengan id : ${id} tidak ditemukan`,
           });
         }
 
-        return Category;
+        return paymentRecord;
       } catch (error) {
         if (error instanceof TRPCError) throw error;
 
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to fetch Category",
+          message: "Failed to fetch payment record",
           cause: error,
         });
       }
     }),
-
   create: publicProcedure
     .input(createPaymentRecordRequest)
     .mutation(async ({ ctx, input }) => {
-      await ctx.db.$transaction(async (db) => {
+      const { db } = ctx;
+      await db.$transaction(async (tx) => {
         try {
-          const paymentRecord = await ctx.db.paymentRecord.create({
-            data: input,
-          });
-
-          const transactionExists = await db.transaction.findUnique({
+          const transactionExists = await tx.transaction.findUnique({
             where: { id: input.transaction_id },
           });
 
@@ -113,6 +52,16 @@ export const paymentRecordRouter = createTRPCRouter({
               message: "Data transaksi tidak ditemukan",
             });
           }
+
+          if (Number(input.amount) > Number(transactionExists.amount_due)) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: "Nominal pembayaran terlalu besar",
+            });
+          }
+          const paymentRecord = await tx.paymentRecord.create({
+            data: input,
+          });
 
           const amountPaid =
             Number(transactionExists.amount_paid) + Number(input.amount);
@@ -127,7 +76,7 @@ export const paymentRecordRouter = createTRPCRouter({
             transactionStatus = "PARTIALLY_PAID";
           }
 
-          await db.transaction.update({
+          await tx.transaction.update({
             where: { id: input.transaction_id },
             data: {
               amount_paid: String(amountPaid),
@@ -142,7 +91,7 @@ export const paymentRecordRouter = createTRPCRouter({
 
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
-            message: "Failed to create  category",
+            message: "Failed to create payment record",
             cause: error,
           });
         }
@@ -153,86 +102,138 @@ export const paymentRecordRouter = createTRPCRouter({
     .input(
       z.object({
         id: z.string(),
-        request: updateCategoryRequest,
+        request: updatePaymentRecordRequest,
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      try {
-        const existingCategory = await ctx.db.category.findUnique({
-          where: { id: input.id },
-        });
+      const { db } = ctx;
+      const { id, request } = input;
 
-        if (!existingCategory) {
-          throw new TRPCError({
-            code: "NOT_FOUND",
-            message: ` category with ID ${input.id} not found`,
-          });
-        }
-
-        if (
-          input.request.name &&
-          input.request.name !== existingCategory.name
-        ) {
-          const nameExists = await ctx.db.category.count({
-            where: { name: input.request.name },
+      return await db.$transaction(async (tx) => {
+        try {
+          const existingPaymentRecord = await tx.paymentRecord.findUnique({
+            where: { id },
+            include: {
+              transaction: true,
+            },
           });
 
-          if (nameExists !== 0) {
+          if (!existingPaymentRecord) {
             throw new TRPCError({
-              code: "CONFLICT",
-              message: " category with this name already exists",
+              code: "NOT_FOUND",
+              message: `Riwayat pembayaran dengan id : ${id} tidak ditemukan`,
             });
           }
+
+          const amountDifference =
+            Number(request.amount) - Number(existingPaymentRecord.amount);
+
+          const transaction = existingPaymentRecord.transaction;
+          const newAmountPaid =
+            Number(transaction.amount_paid) + amountDifference;
+          const newAmountDue = Number(transaction.total_amount) - newAmountPaid;
+
+          if (newAmountDue < 0) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: "Nominal pembayaran terlalu besar",
+            });
+          }
+
+          let transactionStatus: TransactionStatus;
+          if (newAmountDue === 0) {
+            transactionStatus = "PAID";
+          } else {
+            transactionStatus = "PARTIALLY_PAID";
+          }
+
+          const updatedPaymentRecord = await tx.paymentRecord.update({
+            where: { id },
+            data: request,
+          });
+
+          await tx.transaction.update({
+            where: { id: existingPaymentRecord.transaction_id },
+            data: {
+              amount_paid: String(newAmountPaid),
+              amount_due: String(newAmountDue),
+              status: transactionStatus,
+            },
+          });
+
+          return updatedPaymentRecord;
+        } catch (error) {
+          if (error instanceof TRPCError) throw error;
+
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to update payment record",
+            cause: error,
+          });
         }
-
-        const Category = await ctx.db.category.update({
-          where: { id: input.id },
-          data: {
-            ...input.request,
-            updated_at: new Date(),
-          },
-        });
-
-        return Category;
-      } catch (error) {
-        if (error instanceof TRPCError) throw error;
-
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to update  category",
-          cause: error,
-        });
-      }
+      });
     }),
 
   delete: publicProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      try {
-        const existingCategory = await ctx.db.category.count({
-          where: { id: input.id },
-        });
+      const { db } = ctx;
+      const { id } = input;
 
-        if (existingCategory === 0) {
+      return await db.$transaction(async (tx) => {
+        try {
+          const paymentRecordExists = await tx.paymentRecord.findUnique({
+            where: { id },
+            include: {
+              transaction: true,
+            },
+          });
+
+          if (!paymentRecordExists) {
+            throw new TRPCError({
+              code: "NOT_FOUND",
+              message: `Riwayat pembayaran dengan ID: ${id} tidak ditemukan`,
+            });
+          }
+
+          const transaction = paymentRecordExists.transaction;
+          const newAmountPaid =
+            Number(transaction.amount_paid) -
+            Number(paymentRecordExists.amount);
+          const newAmountDue = Number(transaction.total_amount) - newAmountPaid;
+
+          let transactionStatus: TransactionStatus;
+          if (newAmountPaid === 0) {
+            transactionStatus = "UNPAID";
+          } else if (newAmountDue === 0) {
+            transactionStatus = "PAID";
+          } else {
+            transactionStatus = "PARTIALLY_PAID";
+          }
+
+          await tx.transaction.update({
+            where: { id: paymentRecordExists.transaction_id },
+            data: {
+              amount_paid: String(newAmountPaid),
+              amount_due: String(newAmountDue),
+              status: transactionStatus,
+            },
+          });
+
+          const paymentRecord = await tx.paymentRecord.delete({
+            where: { id },
+          });
+
+          return paymentRecord.id;
+        } catch (error) {
+          if (error instanceof TRPCError) throw error;
+
           throw new TRPCError({
-            code: "NOT_FOUND",
-            message: ` category with ID ${input.id} not found`,
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to delete payment record",
+            cause: error,
           });
         }
-
-        const Category = await ctx.db.category.delete({
-          where: { id: input.id },
-        });
-
-        return Category.id;
-      } catch (error) {
-        if (error instanceof TRPCError) throw error;
-
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to delete  category",
-          cause: error,
-        });
-      }
+      });
     }),
 });

@@ -1,56 +1,63 @@
+import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
+import { queryParams } from "@/server/validations/api.validation";
+import { generateSlug } from "@/utils/slug-generator";
+import { TRPCError } from "@trpc/server";
+import { z } from "zod";
 import {
   createCategoryRequest,
   updateCategoryRequest,
 } from "../../validations/category.validation";
-import { z } from "zod";
-import { TRPCError } from "@trpc/server";
-import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
-import { generateSlug } from "@/utils/slug-generator";
 
 export const categoryRouter = createTRPCRouter({
   getAll: publicProcedure
     .input(
       z.object({
-        limit: z.number().min(1).max(100).optional().default(50),
-        cursor: z.string().optional(),
-        search: z.string().optional(),
+        params: queryParams,
       }),
     )
     .query(async ({ ctx, input }) => {
+      const { db } = ctx;
+      const { params } = input;
+      const { page, limit, search, sort, order } = params;
       try {
-        const categories = await ctx.db.category.findMany({
-          take: input.limit + 1,
-          ...(input.cursor && {
-            cursor: {
-              id: input.cursor,
-            },
-            skip: 1,
-          }),
-          ...(input.search && {
+        const skip = (page - 1) * limit;
+
+        const totalCount = await db.category.count({
+          ...(search && {
             where: {
-              OR: [{ name: { contains: input.search, mode: "insensitive" } }],
+              OR: [{ name: { contains: search, mode: "insensitive" } }],
+            },
+          }),
+        });
+
+        const categories = await db.category.findMany({
+          take: limit,
+          skip,
+          ...(search && {
+            where: {
+              OR: [{ name: { contains: search, mode: "insensitive" } }],
             },
           }),
           orderBy: {
-            created_at: "desc",
+            [sort]: order,
           },
         });
 
-        let nextCursor: string | undefined = undefined;
-
-        if (categories.length > input.limit) {
-          const nextItem = categories.pop();
-          nextCursor = nextItem?.id;
-        }
+        const lastPage = Math.ceil(totalCount / limit);
 
         return {
-          items: categories,
-          nextCursor,
+          data: categories,
+          meta: {
+            total: totalCount,
+            limit,
+            page,
+            last_page: lastPage,
+          },
         };
       } catch (error) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to fetch  categories",
+          message: "Failed to fetch categories",
           cause: error,
         });
       }

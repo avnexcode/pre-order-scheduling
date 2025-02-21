@@ -21,7 +21,7 @@ export const DashboardSection = ({
         <Heading size={"h3"}>{props.title}</Heading>
         {props.description && <p>{props.description}</p>}
       </header>
-      <main className={cn(className, "flex flex-col")}>{children}</main>
+      <main className={cn("flex flex-col", className)}>{children}</main>
     </section>
   );
 };

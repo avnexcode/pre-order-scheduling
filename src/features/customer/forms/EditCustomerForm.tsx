@@ -13,11 +13,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
+
+import { toast as sonner } from "sonner";
 import { updateCustomerFormSchema } from "../schemas";
 import type { UpdateCustomerFormSchema } from "../types";
 import { CreateCustomerFormInner } from "./CreateCustomerFormInner";
 import { useEffect } from "react";
+
+import { useToast } from "@/hooks/use-toast";
 
 type EditCustomerFormProps = {
   customerId: string;
@@ -25,6 +28,8 @@ type EditCustomerFormProps = {
 
 export const EditCustomerForm = ({ customerId }: EditCustomerFormProps) => {
   const router = useRouter();
+
+  const { toast } = useToast();
   const { data: customer } = api.customer.getById.useQuery(
     { id: customerId },
     { enabled: !!customerId },
@@ -43,8 +48,16 @@ export const EditCustomerForm = ({ customerId }: EditCustomerFormProps) => {
   const { mutate: updateCustomer, isPending: isUpdateCustomerPending } =
     api.customer.update.useMutation({
       onSuccess: () => {
-        toast.success("Berhasil memperbarui data pelanggan");
+
+        sonner.success("Berhasil memperbarui data pelanggan");
         void router.replace("/dashboard/customer");
+      },
+      onError: (error) => {
+        toast({
+          title: "Error",
+          variant: "destructive",
+          description: error.message,
+        });
       },
     });
 

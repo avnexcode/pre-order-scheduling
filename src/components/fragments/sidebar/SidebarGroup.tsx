@@ -4,8 +4,10 @@ import {
   SidebarGroupLabel,
   SidebarMenu,
 } from "@/components/ui/sidebar";
-import { SidebarItem } from "./SidebarItem";
+
 import { renderElements } from "@/utils/render-elements";
+import { SidebarItem } from "./SidebarItem";
+
 
 type SidebarGroupProps = {
   label: string;
@@ -21,7 +23,9 @@ export const SidebarGroup = (props: SidebarGroupProps) => {
     <SidebarGroupComponent>
       <SidebarGroupLabel>{props.label}</SidebarGroupLabel>
       <SidebarGroupContent>
-        <SidebarMenu>
+
+        <SidebarMenu className="space-y-1">
+
           {renderElements({
             of: props.menu,
             keyExtractor: (menu) => menu.title,

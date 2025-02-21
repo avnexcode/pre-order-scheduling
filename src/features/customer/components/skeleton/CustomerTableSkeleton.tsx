@@ -28,7 +28,9 @@ export const CustomerTableSkeleton = () => {
           <TableHead>
             <Skeleton className="h-3 w-full" />
           </TableHead>
-          <TableHead>
+
+          <TableHead className="w-[200px]">
+
             <Skeleton className="h-3 w-full" />
           </TableHead>
         </TableRow>
@@ -42,7 +44,9 @@ export const CustomerTableBodySkeleton = () => {
   return (
     <TableBody>
       {renderElements({
-        of: [...new Array<undefined>(8)],
+
+        of: [...new Array<undefined>(10)],
+
         keyExtractor: (_, index) => index,
         render: () => (
           <TableRow>

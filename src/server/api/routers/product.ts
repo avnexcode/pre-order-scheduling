@@ -1,56 +1,77 @@
-import { z } from "zod";
-import { TRPCError } from "@trpc/server";
+
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
-import { generateSlug } from "@/utils/slug-generator";
+import { queryParams } from "@/server/validations/api.validation";
+
 import {
   createProductRequest,
   updateProductRequest,
 } from "@/server/validations/product.validation";
 
+import { generateSlug } from "@/utils/slug-generator";
+import { TRPCError } from "@trpc/server";
+import { z } from "zod";
+
+
 export const productRouter = createTRPCRouter({
   getAll: publicProcedure
     .input(
       z.object({
-        limit: z.number().min(1).max(100).optional().default(50),
-        cursor: z.string().optional(),
-        search: z.string().optional(),
+
+        params: queryParams,
       }),
     )
     .query(async ({ ctx, input }) => {
+      const { db } = ctx;
+      const { params } = input;
+      const { page, limit, search, sort, order } = params;
       try {
-        const productCategories = await ctx.db.product.findMany({
-          take: input.limit + 1,
-          ...(input.cursor && {
-            cursor: {
-              id: input.cursor,
-            },
-            skip: 1,
-          }),
-          ...(input.search && {
+        const skip = (page - 1) * limit;
+
+        const totalCount = await db.product.count({
+          ...(search && {
             where: {
-              OR: [{ name: { contains: input.search, mode: "insensitive" } }],
+              OR: [{ name: { contains: search, mode: "insensitive" } }],
+            },
+          }),
+        });
+
+        const products = await db.product.findMany({
+          take: limit,
+          skip,
+          ...(search && {
+            where: {
+              OR: [{ name: { contains: search, mode: "insensitive" } }],
             },
           }),
           orderBy: {
-            created_at: "desc",
+            [sort]: order,
+          },
+          include: {
+            category: {
+              select: {
+                name: true,
+              },
+            },
           },
         });
 
-        let nextCursor: string | undefined = undefined;
-
-        if (productCategories.length > input.limit) {
-          const nextItem = productCategories.pop();
-          nextCursor = nextItem?.id;
-        }
+        const lastPage = Math.ceil(totalCount / limit);
 
         return {
-          items: productCategories,
-          nextCursor,
+          data: products,
+          meta: {
+            total: totalCount,
+            limit,
+            page,
+            last_page: lastPage,
+          },
         };
       } catch (error) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to fetch product categories",
+
+          message: "Failed to fetch products",
+
           cause: error,
         });
       }

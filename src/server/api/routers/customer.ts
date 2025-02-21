@@ -1,52 +1,69 @@
-import { z } from "zod";
-import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
+import { queryParams } from "@/server/validations/api.validation";
 import {
   createCustomerRequest,
   updateCustomerRequest,
 } from "@/server/validations/customer.validation";
 
+import { TRPCError } from "@trpc/server";
+import { z } from "zod";
+
+
 export const customerRouter = createTRPCRouter({
   getAll: publicProcedure
     .input(
       z.object({
-        limit: z.number().min(1).max(100).optional().default(50),
-        cursor: z.string().optional(),
-        search: z.string().optional(),
+
+        params: queryParams,
       }),
     )
     .query(async ({ ctx, input }) => {
+      const { db } = ctx;
+      const { params } = input;
+      const { page, limit, search, sort, order } = params;
       try {
-        const customers = await ctx.db.customer.findMany({
-          take: input.limit + 1,
-          ...(input.cursor && {
-            cursor: {
-              id: input.cursor,
-            },
-            skip: 1,
-          }),
-          ...(input.search && {
+        const skip = (page - 1) * limit;
+
+        const totalCount = await db.customer.count({
+          ...(search && {
             where: {
               OR: [
-                { name: { contains: input.search, mode: "insensitive" } },
-                { email: { contains: input.search, mode: "insensitive" } },
+                { name: { contains: search, mode: "insensitive" } },
+                { email: { contains: search, mode: "insensitive" } },
+              ],
+            },
+          }),
+        });
+
+        const customers = await db.customer.findMany({
+          take: limit,
+          skip,
+          ...(search && {
+            where: {
+              OR: [
+                { name: { contains: search, mode: "insensitive" } },
+                { email: { contains: search, mode: "insensitive" } },
+
               ],
             },
           }),
           orderBy: {
-            created_at: "desc",
+
+            [sort]: order,
           },
         });
 
-        let nextCursor: string | undefined = undefined;
-        if (customers.length > input.limit) {
-          const nextItem = customers.pop();
-          nextCursor = nextItem?.id;
-        }
+        const lastPage = Math.ceil(totalCount / limit);
 
         return {
-          items: customers,
-          nextCursor,
+          data: customers,
+          meta: {
+            total: totalCount,
+            limit,
+            page,
+            last_page: lastPage,
+          },
+
         };
       } catch (error) {
         throw new TRPCError({
@@ -60,15 +77,20 @@ export const customerRouter = createTRPCRouter({
   getById: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
+
+      const { db } = ctx;
+      const { id } = input;
       try {
-        const customer = await ctx.db.customer.findUnique({
-          where: { id: input.id },
+        const customer = await db.customer.findUnique({
+          where: { id: id },
+
         });
 
         if (!customer) {
           throw new TRPCError({
             code: "NOT_FOUND",
-            message: `Customer with ID ${input.id} not found`,
+            message: `Data pelanggan dengan id : ${id} tidak ditemukan`,
+
           });
         }
 
@@ -87,24 +109,45 @@ export const customerRouter = createTRPCRouter({
   create: publicProcedure
     .input(createCustomerRequest)
     .mutation(async ({ ctx, input }) => {
+
+      const { db } = ctx;
+      const { email, phone, name } = input;
       try {
-        const existingCustomer = await ctx.db.customer.count({
-          where: { email: input.email },
+        const existingCustomerEmail = await db.customer.count({
+          where: { email },
         });
 
-        if (existingCustomer !== 0) {
+        if (existingCustomerEmail !== 0) {
           throw new TRPCError({
             code: "CONFLICT",
-            message: "Customer with this email already exists",
+            message: "Alamat email sudah digunakan pelanggan lain",
           });
         }
 
-        const customer = await ctx.db.customer.create({
-          data: {
-            ...input,
-            created_at: new Date(),
-            updated_at: new Date(),
-          },
+        const existingCustomerPhone = await db.customer.count({
+          where: { phone },
+        });
+
+        if (existingCustomerPhone !== 0) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: "Nomor HP sudah digunakan pelanggan lain",
+          });
+        }
+
+        const existingCustomerName = await db.customer.count({
+          where: { name },
+        });
+
+        if (existingCustomerName !== 0) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: "Nama pelanggan sudah digunakan",
+          });
+        }
+
+        const customer = await db.customer.create({
+          data: input,
         });
 
         return customer;
@@ -122,45 +165,68 @@ export const customerRouter = createTRPCRouter({
   update: publicProcedure
     .input(
       z.object({
-        id: z.string().uuid(),
+
+        id: z.string(),
+
         request: updateCustomerRequest,
       }),
     )
     .mutation(async ({ ctx, input }) => {
+      const { db } = ctx;
+      const { id, request } = input;
+      const { email, phone, name } = request;
       try {
         const existingCustomer = await ctx.db.customer.findUnique({
-          where: { id: input.id },
+          where: { id },
         });
 
         if (!existingCustomer) {
           throw new TRPCError({
             code: "NOT_FOUND",
-            message: `Customer with ID ${input.id} not found`,
+            message: `Data pelanggan dengan id : ${id} tidak ditemukan`,
           });
         }
 
-        if (
-          input.request.email &&
-          input.request.email !== existingCustomer.email
-        ) {
-          const emailExists = await ctx.db.customer.count({
-            where: { email: input.request.email },
+        if (email && email !== existingCustomer.email) {
+          const emailExists = await db.customer.count({
+            where: { email },
           });
 
           if (emailExists !== 0) {
             throw new TRPCError({
               code: "CONFLICT",
-              message: "Customer with this email already exists",
+
+              message: "Alamat email sudah digunakan pelanggan lain",
+            });
+          }
+        }
+
+        if (phone && phone !== existingCustomer.phone) {
+          const phoneExists = await db.customer.count({ where: { phone } });
+          if (phoneExists !== 0) {
+            throw new TRPCError({
+              code: "CONFLICT",
+              message: "Nomor HP sudah digunakan pelanggan lain",
+            });
+          }
+        }
+
+        if (name && name !== existingCustomer.name) {
+          const nameExists = await db.customer.count({ where: { name } });
+          if (nameExists !== 0) {
+            throw new TRPCError({
+              code: "CONFLICT",
+              message: "Nama pelanggan sudah digunakan",
+
             });
           }
         }
 
         const customer = await ctx.db.customer.update({
-          where: { id: input.id },
-          data: {
-            ...input.request,
-            updated_at: new Date(),
-          },
+
+          where: { id },
+          data: request,
+
         });
 
         return customer;
@@ -178,20 +244,24 @@ export const customerRouter = createTRPCRouter({
   delete: publicProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
+
+      const { db } = ctx;
+      const { id } = input;
       try {
-        const existingCustomer = await ctx.db.customer.findUnique({
-          where: { id: input.id },
+        const existingCustomer = await db.customer.count({
+          where: { id },
         });
 
-        if (!existingCustomer) {
+        if (existingCustomer === 0) {
           throw new TRPCError({
             code: "NOT_FOUND",
-            message: `Customer with ID ${input.id} not found`,
+            message: `Data pelanggan dengan id : ${id} tidak ditemukan`,
           });
         }
 
-        const customer = await ctx.db.customer.delete({
-          where: { id: input.id },
+        const customer = await db.customer.delete({
+          where: { id },
+
         });
 
         return customer.id;

@@ -101,20 +101,22 @@ export const formatDate = (
 };
 
 // Fungsi helper untuk menambah leading zero
-// const addLeadingZero = (num: number): string => {
-//   return num < 10 ? `0${num}` : num.toString();
-// };
 
-// Contoh penggunaan:
-const date = new Date("2025-02-08T14:30:00");
+export const addLeadingZero = (num: number): string => {
+  return num < 10 ? `0${num}` : num.toString();
+};
 
-// Format standar
-console.log(formatDate(date, "full")); // "Sabtu, 8 Februari 2025"
-console.log(formatDate(date, "medium")); // "8 Feb 2025"
-console.log(formatDate(date, "short")); // "08/02/2025"
-console.log(formatDate(date, "time")); // "14:30"
-console.log(formatDate(date, "dateTime")); // "8 Feb 2025, 14:30"
 
-// Berbagai tipe input
-console.log(formatDate("2025-02-08T14:30:00")); // ISO string
-console.log(formatDate(1738309800000)); // Timestamp
+// // Contoh penggunaan:
+// const date = new Date("2025-02-08T14:30:00");
+
+// // Format standar
+// console.log(formatDate(date, "full")); // "Sabtu, 8 Februari 2025"
+// console.log(formatDate(date, "medium")); // "8 Feb 2025"
+// console.log(formatDate(date, "short")); // "08/02/2025"
+// console.log(formatDate(date, "time")); // "14:30"
+// console.log(formatDate(date, "dateTime")); // "8 Feb 2025, 14:30"
+
+// // Berbagai tipe input
+// console.log(formatDate("2025-02-08T14:30:00")); // ISO string
+// console.log(formatDate(1738309800000)); // Timestamp

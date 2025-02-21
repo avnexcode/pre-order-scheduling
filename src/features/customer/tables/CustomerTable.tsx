@@ -28,13 +28,16 @@ export const CustomerTable = ({
 }: CustomerTableProps) => {
   return (
     <Table>
-      <TableCaption>A list of your recent invoices.</TableCaption>
+
+      <TableCaption>List data pelanggan</TableCaption>
       <TableHeader>
         <TableRow>
           <TableHead className="w-[50px]">No</TableHead>
           <TableHead>Nama</TableHead>
           <TableHead>No Handphone</TableHead>
           <TableHead>Email</TableHead>
+
+          <TableHead className="w-[200px]">Aksi</TableHead>
         </TableRow>
       </TableHeader>
       {isCustomersLoading ? (
@@ -50,7 +53,8 @@ export const CustomerTable = ({
                 <TableCell className="capitalize">{customer.name}</TableCell>
                 <TableCell>{customer.phone}</TableCell>
                 <TableCell>{customer.email ?? "-"}</TableCell>
-                <TableCell className="space-x-1 text-right">
+
+                <TableCell className="space-x-1">
                   <Link href={`/dashboard/customer/${customer.id}/detail`}>
                     <Button variant={"outline"} size={"sm"}>
                       <ScanEye />
@@ -68,9 +72,11 @@ export const CustomerTable = ({
                 </TableCell>
               </TableRow>
             ),
+
+            isLoading: isCustomersLoading,
             fallback: (
               <TableRow>
-                <TableCell colSpan={4} className="text-center">
+                <TableCell colSpan={5} className="text-center">
                   Tidak ada data pelanggan
                 </TableCell>
               </TableRow>

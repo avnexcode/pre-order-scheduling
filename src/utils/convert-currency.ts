@@ -92,45 +92,45 @@ export const convertCurrency = (
   }
 };
 
-// Contoh penggunaan:
-const amount = 1234567.89;
+// // Contoh penggunaan:
+// const amount = 1234567.89;
 
-// Format dasar
-console.log(convertCurrency(amount)); // "Rp 1,234,568"
-console.log(convertCurrency(amount, { type: "USD" })); // "$ 1,234,568"
+// // Format dasar
+// console.log(convertCurrency(amount)); // "Rp 1,234,568"
+// console.log(convertCurrency(amount, { type: "USD" })); // "$ 1,234,568"
 
-// Dengan decimal
-console.log(
-  convertCurrency(amount, {
-    withDecimal: true,
-    decimalDigits: 2,
-  }),
-); // "Rp 1,234,567.89"
+// // Dengan decimal
+// console.log(
+//   convertCurrency(amount, {
+//     withDecimal: true,
+//     decimalDigits: 2,
+//   }),
+// ); // "Rp 1,234,567.89"
 
-// Format compact
-console.log(
-  convertCurrency(amount, {
-    compact: true,
-  }),
-); // "Rp 1.2M"
+// // Format compact
+// console.log(
+//   convertCurrency(amount, {
+//     compact: true,
+//   }),
+// ); // "Rp 1.2M"
 
-// Tanpa symbol
-console.log(
-  convertCurrency(amount, {
-    withSymbol: false,
-  }),
-); // "1,234,568"
+// // Tanpa symbol
+// console.log(
+//   convertCurrency(amount, {
+//     withSymbol: false,
+//   }),
+// ); // "1,234,568"
 
-// Kombinasi opsi
-console.log(
-  convertCurrency(amount, {
-    type: "EUR",
-    withDecimal: true,
-    decimalDigits: 2,
-    compact: false,
-  }),
-); // "€ 1,234,567.89"
+// // Kombinasi opsi
+// console.log(
+//   convertCurrency(amount, {
+//     type: "EUR",
+//     withDecimal: true,
+//     decimalDigits: 2,
+//     compact: false,
+//   }),
+// ); // "€ 1,234,567.89"
 
-// Dengan input string
-console.log(convertCurrency("1234567.89")); // "Rp 1,234,568"
-console.log(convertCurrency("1,234,567.89")); // "Rp 1,234,568"
+// // Dengan input string
+// console.log(convertCurrency("1234567.89")); // "Rp 1,234,568"
+// console.log(convertCurrency("1,234,567.89")); // "Rp 1,234,568"

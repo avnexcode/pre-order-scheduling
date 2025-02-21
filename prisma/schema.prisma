@@ -25,19 +25,14 @@ model Profile {
 }
 
 model Customer {
-    id      String  @id @default(cuid())
-<<<<<<< HEAD
-    name    String  @db.VarChar(150)
-    email   String? @unique @db.VarChar(150)
-    address String  @db.VarChar(255)
-    phone   String  @db.VarChar(20)
-=======
+    id String @id @default(cuid())
+
     name    String  @unique @db.VarChar(150)
     email   String? @unique @db.VarChar(150)
     address String  @db.VarChar(255)
     phone   String  @unique @db.VarChar(20)
->>>>>>> a34a8c7633917bb73ed1c412eb73351709813530
-    orders  Order[]
+
+    orders Order[]
 
     created_at DateTime @default(now())
     updated_at DateTime @updatedAt
@@ -46,19 +41,9 @@ model Customer {
 }
 
 model Product {
-    id          String  @id @default(cuid())
-    name        String  @db.VarChar(150)
-<<<<<<< HEAD
-    slug        String
-    price       String  @db.VarChar(50)
-    description String? @db.Text
+    id   String @id @default(cuid())
+    name String @db.VarChar(150)
 
-    product_category    ProductCategory? @relation(fields: [product_category_id], references: [id])
-    product_category_id String
-
-    created_at DateTime @default(now())
-    updated_at DateTime @updatedAt
-=======
     slug        String  @unique
     price       String  @db.VarChar(50)
     description String? @db.Text
@@ -69,16 +54,11 @@ model Product {
     created_at DateTime @default(now())
     updated_at DateTime @updatedAt
     Order      Order[]
->>>>>>> a34a8c7633917bb73ed1c412eb73351709813530
 
     @@map("products")
 }
 
-<<<<<<< HEAD
-model ProductCategory {
-=======
 model Category {
->>>>>>> a34a8c7633917bb73ed1c412eb73351709813530
     id          String  @id @default(cuid())
     name        String  @unique @db.VarChar(150)
     slug        String  @unique
@@ -97,19 +77,6 @@ enum OrderStatus {
     SUCCESS
 }
 
-<<<<<<< HEAD
-model Order {
-    id           String      @id @default(cuid())
-    label        String      @db.VarChar(100)
-    description  String?     @db.Text
-    total_amount String
-    order_status OrderStatus @default(PENDING)
-
-    order_category_id String
-    order_category    OrderCategory @relation(fields: [order_category_id], references: [id])
-    customer_id       String?
-    customer          Customer?     @relation(fields: [customer_id], references: [id])
-=======
 enum OrderCategory {
     WHOLESALE // grosir
     RETAIL // ecer
@@ -129,7 +96,6 @@ model Order {
     customer       Customer     @relation(fields: [customer_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
     product        Product      @relation(fields: [product_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
     transaction    Transaction?
->>>>>>> a34a8c7633917bb73ed1c412eb73351709813530
 
     created_at DateTime @default(now())
     updated_at DateTime @updatedAt
@@ -137,15 +103,6 @@ model Order {
     @@map("orders")
 }
 
-<<<<<<< HEAD
-model OrderCategory {
-    id          String  @id @default(cuid())
-    name        String  @db.VarChar(150)
-    slug        String
-    description String? @db.Text
-
-    orders Order[]
-=======
 enum TransactionStatus {
     UNPAID
     PARTIALLY_PAID
@@ -162,14 +119,10 @@ model Transaction {
     order_id        String          @unique
     order           Order           @relation(fields: [order_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
     payment_records PaymentRecord[]
->>>>>>> a34a8c7633917bb73ed1c412eb73351709813530
 
     created_at DateTime @default(now())
     updated_at DateTime @updatedAt
 
-<<<<<<< HEAD
-    @@map("order_categories")
-=======
     @@map("transactions")
 }
 
@@ -184,5 +137,4 @@ model PaymentRecord {
     updated_at DateTime @updatedAt
 
     @@map("payment_records")
->>>>>>> a34a8c7633917bb73ed1c412eb73351709813530
 }

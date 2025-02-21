@@ -1,7 +1,6 @@
 import { z } from "zod";
 
 export const createCustomerFormSchema = z.object({
-
   name: z
     .string()
     .min(1, { message: "Nama tidak boleh kosong" })
@@ -28,7 +27,6 @@ export const createCustomerFormSchema = z.object({
     .min(1, { message: "Nomor telepon tidak boleh kosong" })
     .max(20, { message: "Nomor telepon tidak boleh lebih dari 20 karakter" })
     .regex(/^\d+$/, { message: "Nomor telepon hanya boleh berisi angka" }), // Validasi hanya angka
-
 });
 
 export const updateCustomerFormSchema = createCustomerFormSchema.partial();

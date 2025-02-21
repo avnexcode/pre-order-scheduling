@@ -37,7 +37,6 @@ export const CreateCustomerForm = () => {
   const { mutate: createCustomer, isPending: isCreateCustomerPending } =
     api.customer.create.useMutation({
       onSuccess: () => {
-
         sonner.success("Berhasil menambahkan data pelanggan");
         void router.replace("/dashboard/customer");
       },

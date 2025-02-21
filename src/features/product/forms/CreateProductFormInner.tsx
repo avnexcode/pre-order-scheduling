@@ -11,7 +11,6 @@ import { Textarea } from "@/components/ui/textarea";
 import type { CreateProductFormSchema } from "../types";
 import { CategorySelect } from "@/features/category/components";
 
-
 type CreateProductFormInnerProps = {
   formId: string;
   onSubmit: (values: CreateProductFormSchema) => void;
@@ -34,12 +33,10 @@ export const CreateProductFormInner = ({
         render={({ field }) => (
           <FormItem>
             <FormLabel>
-
               Name<span className="text-red-500">*</span>
             </FormLabel>
             <FormControl>
               <Input placeholder="Masukkan nama" {...field} />
-
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -51,12 +48,10 @@ export const CreateProductFormInner = ({
         render={({ field }) => (
           <FormItem>
             <FormLabel>
-
               Harga<span className="text-red-500">*</span>
             </FormLabel>
             <FormControl>
               <Input placeholder="Masukkan nama" {...field} />
-
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -67,7 +62,6 @@ export const CreateProductFormInner = ({
         name="category_id"
         label="Kategori"
         required
-
       />
       <FormField
         control={form.control}

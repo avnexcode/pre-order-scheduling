@@ -17,7 +17,6 @@ export const CustomerPage = () => {
     isLoading: isCustomersLoading,
     refetch: refetchCustomers,
   } = api.customer.getAll.useQuery({
-
     params: {
       limit: 100,
     },
@@ -37,7 +36,6 @@ export const CustomerPage = () => {
           </header>
           <main>
             <CustomerTable
-
               customers={customers?.data}
               isCustomersLoading={isCustomersLoading}
               refetchCustomers={refetchCustomers}

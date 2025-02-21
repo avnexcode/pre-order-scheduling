@@ -29,7 +29,6 @@ export const ProductTable = ({
   isProductsLoading,
   refetchProducts,
 }: ProductTableProps) => {
-
   return (
     <Table>
       <TableCaption>List data produk</TableCaption>
@@ -62,7 +61,6 @@ export const ProductTable = ({
                 {product.category.name}
               </TableCell>
               <TableCell className="space-x-1">
-
                 <Link href={`/dashboard/product/${product.id}/detail`}>
                   <Button variant={"outline"} size={"sm"}>
                     <ScanEye />
@@ -85,7 +83,6 @@ export const ProductTable = ({
           fallback: (
             <TableRow>
               <TableCell colSpan={5} className="text-center">
-
                 Tidak ada data produk
               </TableCell>
             </TableRow>

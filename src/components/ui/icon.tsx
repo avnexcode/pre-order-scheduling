@@ -8,7 +8,6 @@ type IconProps = {
 };
 
 export const Icon = ({ name, color, size = 40, className }: IconProps) => {
-
   const LucideIcon = icons[name];
 
   return <LucideIcon color={color} size={size} className={className} />;

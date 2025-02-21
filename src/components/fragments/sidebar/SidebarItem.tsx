@@ -15,7 +15,6 @@ export const SidebarItem = (props: SidebarItemProps) => {
   const activeLink = pathName === props.url;
   return (
     <SidebarMenuItem>
-
       <SidebarMenuButton asChild isActive={activeLink}>
         <Link href={props.url}>
           <Icon

@@ -13,7 +13,6 @@ import type { UpdateProductFormSchema } from "../types";
 
 import { CategorySelect } from "@/features/category/components";
 
-
 type EditProductFormInnerProps = {
   formId: string;
   onSubmit: (values: UpdateProductFormSchema) => void;
@@ -65,7 +64,6 @@ export const EditProductFormInner = ({
         name="category_id"
         label="Kategori"
         required
-
       />
       <FormField
         control={form.control}

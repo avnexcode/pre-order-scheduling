@@ -48,7 +48,6 @@ export const EditCustomerForm = ({ customerId }: EditCustomerFormProps) => {
   const { mutate: updateCustomer, isPending: isUpdateCustomerPending } =
     api.customer.update.useMutation({
       onSuccess: () => {
-
         sonner.success("Berhasil memperbarui data pelanggan");
         void router.replace("/dashboard/customer");
       },

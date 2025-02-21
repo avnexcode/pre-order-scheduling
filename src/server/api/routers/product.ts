@@ -1,4 +1,3 @@
-
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import { queryParams } from "@/server/validations/api.validation";
 
@@ -11,12 +10,10 @@ import { generateSlug } from "@/utils/slug-generator";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
-
 export const productRouter = createTRPCRouter({
   getAll: publicProcedure
     .input(
       z.object({
-
         params: queryParams,
       }),
     )

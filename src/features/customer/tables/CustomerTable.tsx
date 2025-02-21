@@ -28,7 +28,6 @@ export const CustomerTable = ({
 }: CustomerTableProps) => {
   return (
     <Table>
-
       <TableCaption>List data pelanggan</TableCaption>
       <TableHeader>
         <TableRow>

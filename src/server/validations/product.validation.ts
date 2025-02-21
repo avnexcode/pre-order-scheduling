@@ -6,7 +6,6 @@ export const createProductRequest = z.object({
   description: z.string().optional(),
 
   category_id: z.string(),
-
 });
 
 export const updateProductRequest = createProductRequest.partial();

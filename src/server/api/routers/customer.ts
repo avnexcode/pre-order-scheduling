@@ -8,12 +8,10 @@ import {
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
-
 export const customerRouter = createTRPCRouter({
   getAll: publicProcedure
     .input(
       z.object({
-
         params: queryParams,
       }),
     )
@@ -43,12 +41,10 @@ export const customerRouter = createTRPCRouter({
               OR: [
                 { name: { contains: search, mode: "insensitive" } },
                 { email: { contains: search, mode: "insensitive" } },
-
               ],
             },
           }),
           orderBy: {
-
             [sort]: order,
           },
         });
@@ -63,7 +59,6 @@ export const customerRouter = createTRPCRouter({
             page,
             last_page: lastPage,
           },
-
         };
       } catch (error) {
         throw new TRPCError({
@@ -77,20 +72,17 @@ export const customerRouter = createTRPCRouter({
   getById: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
-
       const { db } = ctx;
       const { id } = input;
       try {
         const customer = await db.customer.findUnique({
           where: { id: id },
-
         });
 
         if (!customer) {
           throw new TRPCError({
             code: "NOT_FOUND",
             message: `Data pelanggan dengan id : ${id} tidak ditemukan`,
-
           });
         }
 
@@ -109,7 +101,6 @@ export const customerRouter = createTRPCRouter({
   create: publicProcedure
     .input(createCustomerRequest)
     .mutation(async ({ ctx, input }) => {
-
       const { db } = ctx;
       const { email, phone, name } = input;
       try {
@@ -165,7 +156,6 @@ export const customerRouter = createTRPCRouter({
   update: publicProcedure
     .input(
       z.object({
-
         id: z.string(),
 
         request: updateCustomerRequest,
@@ -217,16 +207,13 @@ export const customerRouter = createTRPCRouter({
             throw new TRPCError({
               code: "CONFLICT",
               message: "Nama pelanggan sudah digunakan",
-
             });
           }
         }
 
         const customer = await ctx.db.customer.update({
-
           where: { id },
           data: request,
-
         });
 
         return customer;
@@ -244,7 +231,6 @@ export const customerRouter = createTRPCRouter({
   delete: publicProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
-
       const { db } = ctx;
       const { id } = input;
       try {
@@ -261,7 +247,6 @@ export const customerRouter = createTRPCRouter({
 
         const customer = await db.customer.delete({
           where: { id },
-
         });
 
         return customer.id;

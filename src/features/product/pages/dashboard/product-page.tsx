@@ -17,11 +17,9 @@ export const ProductPage = () => {
     isLoading: isProductsLoading,
     refetch: refetchProducts,
   } = api.product.getAll.useQuery({
-
     params: {
       limit: 100,
     },
-
   });
   return (
     <PageContainer>
@@ -37,9 +35,7 @@ export const ProductPage = () => {
               </Link>
             </header>
             <ProductTable
-
               products={products?.data}
-
               isProductsLoading={isProductsLoading}
               refetchProducts={refetchProducts}
             />

@@ -6,7 +6,6 @@ export const createProductFormSchema = z.object({
   description: z.string().optional(),
 
   category_id: z.string().min(1),
-
 });
 
 export const updateProductFormSchema = createProductFormSchema.partial();

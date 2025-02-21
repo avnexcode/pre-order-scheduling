@@ -26,7 +26,6 @@ type CustomerSelectProps<T extends FieldValues> = {
   label: string;
   required?: boolean;
   className?: string;
-
 };
 
 export const CustomerSelect = <T extends FieldValues>({
@@ -65,7 +64,6 @@ export const CustomerSelect = <T extends FieldValues>({
       control={form.control}
       name={name}
       render={({ field: { value, onChange } }) => (
-
         <FormItem className={cn("w-full", className)}>
           <FormLabel className="capitalize">
             {label} {required && <span className="text-red-500">*</span>}
@@ -77,15 +75,12 @@ export const CustomerSelect = <T extends FieldValues>({
             defaultValue={value}
           >
             <FormControl>
-
               <SelectTrigger>
                 <SelectValue placeholder={`Pilih ${label.toLowerCase()}`} />
-
               </SelectTrigger>
             </FormControl>
             <SelectContent>
               {renderElements({
-
                 of: customers?.data,
 
                 keyExtractor: (customer) => customer.id,

@@ -4,13 +4,17 @@ import {
   PageContainer,
   SectionContainer,
 } from "@/components/layouts";
+import { EditOrderForm } from "../../forms/EditOrderForm";
+import { useParams } from "next/navigation";
 
 export const EditOrderPage = () => {
+  const params: { id: string } = useParams();
+  const orderId = params?.id;
   return (
     <PageContainer>
       <SectionContainer padded>
         <DashboardSection title="Edit Order Dek">
-          <h1>KONTOL Edit</h1>
+          <EditOrderForm orderId={orderId} />
         </DashboardSection>
       </SectionContainer>
     </PageContainer>

@@ -195,57 +195,98 @@ export const orderRouter = createTRPCRouter({
   update: publicProcedure
     .input(
       z.object({
-        id: z.string().uuid(),
+        id: z.string(),
         request: updateOrderRequest,
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      try {
-        const existingorder = await ctx.db.order.findUnique({
-          where: { id: input.id },
-        });
-
-        if (!existingorder) {
-          throw new TRPCError({
-            code: "NOT_FOUND",
-            message: `order with ID ${input.id} not found`,
-          });
-        }
-
-        if (
-          input.request.label &&
-          input.request.label !== existingorder.label
-        ) {
-          const emailExists = await ctx.db.order.count({
-            where: { label: input.request.label },
+      await ctx.db.$transaction(async (db) => {
+        try {
+          const existingOrder = await db.order.findUnique({
+            where: { id: input.id },
+            include: {
+              transaction: true,
+            },
           });
 
-          if (emailExists !== 0) {
+          if (!existingOrder) {
             throw new TRPCError({
-              code: "CONFLICT",
-              message: "order with this email already exists",
+              code: "NOT_FOUND",
+              message: `Data pesanan dengan ID ${input.id} tidak ditemukan`,
             });
           }
+
+          if (
+            input.request.label &&
+            input.request.label !== existingOrder.label
+          ) {
+            const labelExists = await db.order.count({
+              where: { label: input.request.label },
+            });
+
+            if (labelExists !== 0) {
+              throw new TRPCError({
+                code: "CONFLICT",
+                message: "Label pesanan ini sudah digunakan",
+              });
+            }
+          }
+
+          const updatedOrder = await db.order.update({
+            where: { id: input.id },
+            data: {
+              ...input.request,
+              updated_at: new Date(),
+            },
+          });
+
+          if (input.request.product_id || input.request.total) {
+            const product = await db.product.findUnique({
+              where: {
+                id: input.request.product_id ?? existingOrder.product_id,
+              },
+              select: {
+                price: true,
+              },
+            });
+
+            if (!product) {
+              throw new TRPCError({
+                code: "NOT_FOUND",
+                message: "Data produk tidak ditemukan",
+              });
+            }
+
+            const transaction = await db.transaction.findUnique({
+              where: { order_id: input.id },
+            });
+
+            const newTotal = input.request.total ?? existingOrder.total;
+            const totalAmount = Number(product.price) * Number(newTotal);
+            const amountDue = totalAmount - Number(transaction?.amount_paid);
+
+            await db.transaction.update({
+              where: { id: existingOrder.transaction_id! },
+              data: {
+                total_amount: String(totalAmount),
+                amount_due: String(amountDue),
+                updated_at: new Date(),
+              },
+            });
+          }
+
+          return updatedOrder;
+        } catch (error) {
+          console.log("ERROR FROM TRPC UPDATE ORDER : ", error);
+          if (error instanceof TRPCError) throw error;
+
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Terjadi kesalahan saat memperbarui pesanan",
+            cause: error,
+          });
         }
-
-        const order = await ctx.db.order.update({
-          where: { id: input.id },
-          data: {
-            ...input.request,
-            updated_at: new Date(),
-          },
-        });
-
-        return order;
-      } catch (error) {
-        if (error instanceof TRPCError) throw error;
-
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to update order",
-          cause: error,
-        });
-      }
+      });
     }),
 
   delete: publicProcedure

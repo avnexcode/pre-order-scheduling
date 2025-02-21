@@ -27,7 +27,6 @@ export const CreateOrderForm = () => {
       total: "",
       product_id: "",
       customer_id: "",
-      status: "PENDING",
       category: "WHOLESALE",
     },
     resolver: zodResolver(createOrderFormSchema),
